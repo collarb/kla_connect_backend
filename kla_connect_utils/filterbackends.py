@@ -25,3 +25,5 @@ class KlaConnectIncidentFilterBackend(DRYPermissionFiltersBase):
 
         if user.is_ddt:
             queryset = queryset.filter(status=INCIDENT_STATUS_COMPLETE)
+        
+        return queryset
