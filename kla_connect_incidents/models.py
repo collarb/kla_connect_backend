@@ -11,6 +11,9 @@ class KlaConnectIncidentType(TimeStampModel):
     name = models.CharField(max_length=50, blank=False, null=False)
     show_icon = models.FileField(upload_to='icons/%Y/%m/%d', blank=True,
                                  null=True)
+    
+    def __str__(self):
+        return self.name
 
     @staticmethod
     @allow_staff_or_superuser
@@ -40,11 +43,14 @@ class KlaConnectIncident(TimeStampModel):
     description = models.TextField(null=False, blank=False)
     attachment = models.ImageField(upload_to='attachments/%Y/%m/%d', blank=True,
                                    null=True)
-    ref = models.CharField(max_length=10, blank=False, null=False,
+    ref = models.CharField(max_length=20, blank=False, null=False,
                            default=helpers.generate_ref_number, unique=True)
 
     feedback = models.CharField(max_length=250, blank=True, null=True)
     status = models.CharField(max_length=25, default=INCIDENT_STATUS_PENDING)
+    
+    def __str__(self):
+        return "{}|{}".format(self.subject, self.type)
 
     @staticmethod
     @allow_staff_or_superuser
