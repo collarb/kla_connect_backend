@@ -155,6 +155,5 @@ class SimpleUserSerializer(serializers.ModelSerializer):
             'role': {'write_only': True},
             'gender': {'write_only': True}
         }
-        exclude = ('groups', 'user_permissions', 'deleted')
-        read_only_fields = ('id', 'last_login',
-                            'is_superuser', 'date_joined', 'is_active', 'is_staff')
+        exclude = ('groups', 'user_permissions', 'deleted','is_superuser')
+        read_only_fields = ('id', 'last_login', 'date_joined', 'is_active', 'is_staff')

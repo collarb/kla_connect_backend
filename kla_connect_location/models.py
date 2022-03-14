@@ -20,3 +20,7 @@ class Area(TimeStampModel):
     @staticmethod
     def has_read_permission(request):
         return True
+    
+    @staticmethod
+    def has_object_read_permission(request):
+        return True

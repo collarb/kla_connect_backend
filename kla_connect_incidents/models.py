@@ -4,6 +4,7 @@ from kla_connect_utils.constants import EMERGENCY_CHOICES, INCIDENT_STATUS_PENDI
     INCIDENT_STATUS_COMPLETE
 from kla_connect_utils import helpers
 from dry_rest_permissions.generics import allow_staff_or_superuser
+from kla_connect_location.models import Area
 
 
 class KlaConnectIncidentType(TimeStampModel):
@@ -15,15 +16,19 @@ class KlaConnectIncidentType(TimeStampModel):
     @allow_staff_or_superuser
     def has_read_permission(request):
         return True
+    
+    @staticmethod
+    def has_object_read_permission(request):
+        return True
 
 
 class KlaConnectIncident(TimeStampModel):
     user = models.ForeignKey(get_user_model(), null=True,
                              blank=True, on_delete=models.DO_NOTHING)
     type = models.ForeignKey(
-        'kla_connect_incidents.KlaConnectIncidentType', on_delete=models.CASCADE)
+        KlaConnectIncidentType, on_delete=models.CASCADE)
     affected_area = models.ForeignKey(
-        'kla_connect_location.Area', on_delete=models.CASCADE,
+        Area, on_delete=models.CASCADE,
         null=True, blank=True)
     latitude = models.DecimalField(
         max_digits=9, decimal_places=6, null=True, blank=True)
@@ -55,6 +60,10 @@ class KlaConnectIncident(TimeStampModel):
     @allow_staff_or_superuser
     def has_object_write_permission(request):
         return request.user == self.user and self.status != INCIDENT_STATUS_COMPLETE
+    
+    @staticmethod
+    def has_write_permission(request):
+        return True
 
     @property
     def priority_display(self):
