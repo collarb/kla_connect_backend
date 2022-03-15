@@ -10,6 +10,10 @@ class KlaConnectUser(AbstractUser):
     surname = models.CharField(max_length=250, blank=True)
     gender = models.CharField(max_length=10,choices=GENDER_CHOICES, blank=False)
     deleted = models.BooleanField(default=False)
+    
+    class Meta(AbstractUser.Meta):
+        ordering = ['-date_joined']
+    
 
     @property
     def is_citizen(self):

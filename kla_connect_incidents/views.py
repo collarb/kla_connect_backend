@@ -35,7 +35,5 @@ class ReportViewSet(ModelViewSet):
     queryset = KlaConnectReport.objects.all()
     lookup_value_regex = '[-\w.]+'
     permission_classes = (IsAuthenticated, DRYPermissions)
-    filter_backends = DEFAULT_FILTER_BACKENDS 
-    
-    # + \
-    # #     (KlaConnectReportFilterBackend,)
+    filter_backends = DEFAULT_FILTER_BACKENDS + \
+        (KlaConnectReportFilterBackend,)
