@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.conf.urls.static import static 
+from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
@@ -24,7 +24,7 @@ from kla_connect_auth.views import UserCreateView, UserView, UserDetailsView
 from kla_connect_profiles.views import ProfileViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from kla_connect_location.views import LocationViewSet
-from kla_connect_incidents.views import IncidentTypeViewSet, IncidentViewSet
+from kla_connect_incidents.views import IncidentTypeViewSet, IncidentViewSet, ReportTypeViewSet, ReportViewSet
 from django.conf import settings
 
 schema_view = get_schema_view(
@@ -38,12 +38,16 @@ schema_view = get_schema_view(
 )
 
 router = DefaultRouter()
-router.register(r'users/register',UserCreateView)
-router.register(r'users',UserView)
-router.register(r'profile',ProfileViewSet,basename='Profiles')
-router.register(r'location',LocationViewSet,basename='Location')
-router.register(r'incident/type',IncidentTypeViewSet,basename='Incident-types')
-router.register(r'incident',IncidentViewSet,basename='Incident')
+router.register(r'users/register', UserCreateView)
+router.register(r'users', UserView)
+router.register(r'profile', ProfileViewSet, basename='Profiles')
+router.register(r'location', LocationViewSet, basename='Location')
+router.register(r'incident/type', IncidentTypeViewSet,
+                basename='Incident-types')
+router.register(r'incident', IncidentViewSet, basename='Incident')
+router.register(r'report/type', ReportTypeViewSet, basename='Incident-types')
+router.register(r'report', ReportViewSet, basename='Incident')
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),

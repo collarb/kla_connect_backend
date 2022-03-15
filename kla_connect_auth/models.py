@@ -41,10 +41,6 @@ class KlaConnectUser(AbstractUser):
     @property
     def display_role(self):
         return self.get_role_display()
-    
-    @property
-    def display_gender(self):
-        return self.get_gender_display()
 
 
 class LoginAttempt(TimeStampModel):

@@ -124,9 +124,6 @@ class NestedModelSerializer(serializers.ModelSerializer):
                     serializer.save()
         except Exception:
             pass
-
-        # post_nested_save.send(sender=self.__class__.Meta.model,
-        #                       instance=instance, created=is_created)
         return instance
 
 
@@ -146,14 +143,12 @@ class SimpleUserSerializer(serializers.ModelSerializer):
     is_ddt = serializers.BooleanField(read_only=True)
     full_name = serializers.CharField(read_only=True)
     display_role = serializers.CharField(read_only=True)
-    display_gender = serializers.CharField(read_only=True)
 
     class Meta:
         model = get_user_model()
         extra_kwargs = {
             'password': {'write_only': True, 'required': True},
             'role': {'write_only': True},
-            'gender': {'write_only': True}
         }
         exclude = ('groups', 'user_permissions', 'deleted','is_superuser')
         read_only_fields = ('id', 'last_login', 'date_joined', 'is_active', 'is_staff')

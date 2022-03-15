@@ -25,5 +25,25 @@ class KlaConnectIncidentFilterBackend(DRYPermissionFiltersBase):
 
         if user.is_ddt:
             queryset = queryset.filter(status=INCIDENT_STATUS_COMPLETE)
-        
+
+        return queryset
+
+
+class KlaConnectReportFilterBackend(DRYPermissionFiltersBase):
+    def filter_list_queryset(self, request, queryset, view):
+        user = request.user
+        if user.is_citizen:
+            queryset = queryset.filter(status=INCIDENT_STATUS_COMPLETE)
+
+        if user.is_data_entrant:
+            queryset = queryset.filter(
+                (Q(status=INCIDENT_STATUS_PENDING) & Q(user=user)) | Q(status=INCIDENT_STATUS_COMPLETE))
+
+        if user.is_manager:
+            queryset = queryset.filter(
+                Q(status=INCIDENT_STATUS_FOR_REVIEW) | Q(status=INCIDENT_STATUS_COMPLETE))
+
+        if user.is_ddt:
+            queryset = queryset.filter(status=INCIDENT_STATUS_COMPLETE)
+
         return queryset

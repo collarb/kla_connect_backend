@@ -11,7 +11,30 @@ class KlaConnectIncidentType(TimeStampModel):
     name = models.CharField(max_length=50, blank=False, null=False)
     show_icon = models.FileField(upload_to='icons/%Y/%m/%d', blank=True,
                                  null=True)
+
+    def __str__(self):
+        return self.name
+
+    @staticmethod
+    def has_read_permission(request):
+        return True
+
+    def has_object_read_permission(request):
+        return True
     
+    @staticmethod
+    @allow_staff_or_superuser
+    def has_write_permissions(request):
+        return not request.user.is_citizen
+    
+    @allow_staff_or_superuser
+    def has_object_write_permissions(request):
+        return not request.user.is_citizen
+    
+    
+class KlaConnectReportType(TimeStampModel):
+    name = models.CharField(max_length=50, blank=False, null=False)
+
     def __str__(self):
         return self.name
 
@@ -19,10 +42,18 @@ class KlaConnectIncidentType(TimeStampModel):
     @allow_staff_or_superuser
     def has_read_permission(request):
         return True
-    
-    @staticmethod
+
     def has_object_read_permission(request):
         return True
+    
+    @staticmethod
+    @allow_staff_or_superuser
+    def has_write_permissions(request):
+        return not request.user.is_citizen
+    
+    @allow_staff_or_superuser
+    def has_object_write_permissions(request):
+        return not request.user.is_citizen
 
 
 class KlaConnectIncident(TimeStampModel):
@@ -48,7 +79,7 @@ class KlaConnectIncident(TimeStampModel):
 
     feedback = models.CharField(max_length=250, blank=True, null=True)
     status = models.CharField(max_length=25, default=INCIDENT_STATUS_PENDING)
-    
+
     def __str__(self):
         return "{}|{}".format(self.subject, self.type)
 
@@ -57,16 +88,14 @@ class KlaConnectIncident(TimeStampModel):
     def has_read_permission(request):
         return True
 
-    @staticmethod
     @allow_staff_or_superuser
     def has_object_read_permission(request):
         return request.user == self.user
 
-    @staticmethod
-    @allow_staff_or_superuser
     def has_object_write_permission(request):
-        return request.user == self.user and self.status != INCIDENT_STATUS_COMPLETE
-    
+        return (request.user == self.user or not request.user.is_citizen) and \
+            self.status != INCIDENT_STATUS_COMPLETE
+
     @staticmethod
     def has_write_permission(request):
         return True
@@ -74,3 +103,40 @@ class KlaConnectIncident(TimeStampModel):
     @property
     def priority_display(self):
         return self.get_priority_display()
+    
+
+class KlaConnectReport(TimeStampModel):
+    user = models.ForeignKey(get_user_model(), null=True,
+                             blank=True, on_delete=models.DO_NOTHING)
+    type = models.ForeignKey(
+        KlaConnectReportType, on_delete=models.CASCADE)
+    affected_area = models.ForeignKey(
+        Area, on_delete=models.CASCADE,
+        null=True, blank=True)
+    title = models.CharField(max_length=225,null=False, blank=True)
+    description = models.TextField(null=False, blank=False)
+    attachment = models.ImageField(upload_to='attachments/%Y/%m/%d', blank=True,
+                                   null=True)
+    ref = models.CharField(max_length=20, blank=False, null=False,
+                           default=helpers.generate_rep_ref_number, unique=True)
+
+    feedback = models.CharField(max_length=250, blank=True, null=True)
+    status = models.CharField(max_length=25, default=INCIDENT_STATUS_PENDING)
+
+    def __str__(self):
+        return "{}|{}".format(self.title, self.type)
+
+    @staticmethod
+    def has_read_permission(request):
+        return True
+
+    def has_object_read_permission(request):
+        return True
+
+    def has_object_write_permission(request):
+        return not request.user.is_citizen and self.status != INCIDENT_STATUS_COMPLETE
+
+    @staticmethod
+    def has_write_permission(request):
+        return (not request.user.is_citizen)
+
