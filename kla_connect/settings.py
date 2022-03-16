@@ -189,8 +189,7 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'UPDATE_LAST_LOGIN': True,
-    "TOKEN_OBTAIN_SERIALIZER": "Kla_connect_auth.serializers.KlaConnectUserObtainPairSerializer",
+    'UPDATE_LAST_LOGIN': True
 }
 
 EMAIL_BACKEND = env('EMAIL_BACKEND')

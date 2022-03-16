@@ -3,10 +3,15 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import CreateModelMixin, \
     ListModelMixin, RetrieveModelMixin, DestroyModelMixin, UpdateModelMixin
-from kla_connect_auth.serializers import KlaConnectUserSerializer, KlaConnectUser, KlaConnectUpdateUserSerializer
+from kla_connect_auth.serializers import KlaConnectUserSerializer, KlaConnectUser, KlaConnectUpdateUserSerializer, \
+    KlaConnectUserObtainPairSerializer
 from rest_framework.permissions import IsAuthenticated
 from kla_connect_utils.filterbackends import DEFAULT_FILTER_BACKENDS
 from rest_framework import status
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+class KlaConnectObtainTokenView(TokenObtainPairView):
+    serializer_class = KlaConnectUserObtainPairSerializer
 
 class UserCreateView(CreateModelMixin, GenericViewSet):
     serializer_class = KlaConnectUserSerializer

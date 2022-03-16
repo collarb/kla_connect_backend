@@ -40,9 +40,14 @@ class KlaConnectUserObtainPairSerializer(TokenObtainPairSerializer):
     account_verification_code = "Account Verification"
 
     def get_token(self, user):
-        if user.userprofile.verified:
-            token = super().get_token(user)
-        else:
-            raise AuthenticationFailed(
-                self.account_unverified_message, self.account_verification_code)
-        return token
+        try:
+            if user.userprofile.verified:
+                token = super().get_token(user)
+                return token
+            else:
+                raise AuthenticationFailed(
+                    self.account_unverified_message, self.account_verification_code)
+        except KlaConnectUser.userprofile.RelatedObjectDoesNotExist:
+            return super().get_token(user)
+
+        

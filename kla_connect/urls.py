@@ -20,9 +20,9 @@ from rest_framework.routers import DefaultRouter
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from kla_connect_auth.views import UserCreateView, UserView, UserDetailsView
+from kla_connect_auth.views import UserCreateView, UserView, UserDetailsView, KlaConnectObtainTokenView
 from kla_connect_profiles.views import ProfileViewSet, profile_verified, LanguageViewSet
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView
 from kla_connect_location.views import LocationViewSet
 from kla_connect_incidents.views import IncidentTypeViewSet, IncidentViewSet, ReportTypeViewSet, ReportViewSet
 from django.conf import settings
@@ -54,7 +54,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/docs/', schema_view.with_ui('swagger', cache_timeout=0)),
     # path('api/users/register/', UserCreateView.as_view(), name="register-user"),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/', KlaConnectObtainTokenView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     # path('api/users/', UserView.as_view(), name="users"),
     path('api/account/me', UserDetailsView.as_view(), name="user-details"),
