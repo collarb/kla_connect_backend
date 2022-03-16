@@ -19,7 +19,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env(
     DEBUG=(bool, False),
-    CORS_ALLOW_ALL_ORIGINS=(bool, True)
+    CORS_ALLOW_ALL_ORIGINS=(bool, True),
+    EMAIL_USE_TLS=(bool, True)
 )
 
 env_file_location = str(BASE_DIR / 'kla_connect_env/.env')
@@ -188,9 +189,17 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'UPDATE_LAST_LOGIN': True
+    'UPDATE_LAST_LOGIN': True,
+    "TOKEN_OBTAIN_SERIALIZER": "Kla_connect_auth.serializers.KlaConnectUserObtainPairSerializer",
 }
 
+EMAIL_BACKEND = env('EMAIL_BACKEND')
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = env('EMAIL_USE_TLS')
+EMAIL_PORT = env('EMAIL_PORT')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 
 try:
     from kla_connect_env.local import *

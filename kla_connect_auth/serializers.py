@@ -3,6 +3,9 @@ from kla_connect_utils.serializers import NestedModelSerializer, \
     SimpleProfileSerializer, serializers, SimpleUserSerializer
 from kla_connect_profiles.serializers import KlaConnectUserProfileSerializer
 from kla_connect_utils.constants import CITIZEN_USER
+from kla_connect_profiles.models import ProfileValidation
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.exceptions import AuthenticationFailed
 
 
 class KlaConnectUserSerializer(NestedModelSerializer, SimpleUserSerializer):
@@ -16,22 +19,12 @@ class KlaConnectUserSerializer(NestedModelSerializer, SimpleUserSerializer):
             if profile_instance.is_valid(raise_exception=True):
                 profile_instance.save()
 
-    def nested_save_override(self, validated_data, instance=None):
-        set_password = False
-        if not instance and hasattr(self, 'is_update') and not self.is_update:
-            set_password = True
-
-        instance = super(KlaConnectUserSerializer, self).nested_save_override(
-            validated_data, instance=instance)
-
+    def create(self, validated_data):
+        instance = super(KlaConnectUserSerializer, self).create(validated_data)
         if validated_data.get('role', None) and (validated_data.get('role') != CITIZEN_USER):
             instance.is_staff = True
-
-        if set_password:
-            instance.set_password(validated_data['password'])
-
+        instance.set_password(validated_data['password'])
         instance.save()
-        return instance
 
 
 class KlaConnectUpdateUserSerializer(KlaConnectUserSerializer):
@@ -39,3 +32,17 @@ class KlaConnectUpdateUserSerializer(KlaConnectUserSerializer):
         exclude = KlaConnectUserSerializer.Meta.exclude+('password',)
         read_only_fields = KlaConnectUserSerializer.Meta.read_only_fields + \
             ('username',)
+
+
+class KlaConnectUserObtainPairSerializer(TokenObtainPairSerializer):
+
+    account_unverified_message = "Account is not yet verified, please verify with shared code"
+    account_verification_code = "Account Verification"
+
+    def get_token(self, user):
+        if user.userprofile.verified:
+            token = super().get_token(user)
+        else:
+            raise AuthenticationFailed(
+                self.account_unverified_message, self.account_verification_code)
+        return token

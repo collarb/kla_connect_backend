@@ -21,7 +21,7 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from kla_connect_auth.views import UserCreateView, UserView, UserDetailsView
-from kla_connect_profiles.views import ProfileViewSet
+from kla_connect_profiles.views import ProfileViewSet, profile_verified, LanguageViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from kla_connect_location.views import LocationViewSet
 from kla_connect_incidents.views import IncidentTypeViewSet, IncidentViewSet, ReportTypeViewSet, ReportViewSet
@@ -46,7 +46,8 @@ router.register(r'incident/type', IncidentTypeViewSet,
                 basename='Incident-types')
 router.register(r'incident', IncidentViewSet, basename='Incident')
 router.register(r'report/type', ReportTypeViewSet, basename='Incident-types')
-router.register(r'report', ReportViewSet, basename='Incident')
+router.register(r'report', ReportViewSet, basename='Incidents')
+router.register(r'language',LanguageViewSet, basename="Languages")
 
 
 urlpatterns = [
@@ -57,7 +58,7 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     # path('api/users/', UserView.as_view(), name="users"),
     path('api/account/me', UserDetailsView.as_view(), name="user-details"),
-    # path('api/profile/', ProfileViewSet.as_view(), name="user-profiles"),
+    path('api/profile/verified/', profile_verified, name="profile_validated"),
     path('api/', include(router.urls)),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

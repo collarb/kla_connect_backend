@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from rest_framework import serializers
-from kla_connect_profiles.models import KlaConnectUserProfile, get_user_model
+from kla_connect_profiles.models import KlaConnectUserProfile, get_user_model, KlaConnectLanguage
 from django.db import transaction
 
 class CreateOnlyCurrentUserDefault(serializers.CurrentUserDefault):
@@ -133,8 +133,7 @@ class SimpleProfileSerializer(serializers.ModelSerializer):
         model = KlaConnectUserProfile
         exclude = ('user',)
         read_only_fields = ('id', 'verified')
-
-
+        
 class SimpleUserSerializer(serializers.ModelSerializer):
 
     is_citizen = serializers.BooleanField(read_only=True)
@@ -152,3 +151,15 @@ class SimpleUserSerializer(serializers.ModelSerializer):
         }
         exclude = ('groups', 'user_permissions', 'deleted','is_superuser')
         read_only_fields = ('id', 'last_login', 'date_joined', 'is_active', 'is_staff')
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    user = SimpleUserSerializer
+    class Meta:
+        model = KlaConnectUserProfile
+        read_only_fields = ('id', 'verified')
+
+class SimpleKlaConnectLanguage(serializers.ModelSerializer):
+    class Meta:
+        model = KlaConnectLanguage
+        fields = '__all__'

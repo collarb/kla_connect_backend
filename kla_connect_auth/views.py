@@ -6,6 +6,7 @@ from rest_framework.mixins import CreateModelMixin, \
 from kla_connect_auth.serializers import KlaConnectUserSerializer, KlaConnectUser, KlaConnectUpdateUserSerializer
 from rest_framework.permissions import IsAuthenticated
 from kla_connect_utils.filterbackends import DEFAULT_FILTER_BACKENDS
+from rest_framework import status
 
 class UserCreateView(CreateModelMixin, GenericViewSet):
     serializer_class = KlaConnectUserSerializer
