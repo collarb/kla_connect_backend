@@ -23,7 +23,7 @@ from drf_yasg import openapi
 from kla_connect_auth.views import UserCreateView, UserView, UserDetailsView, KlaConnectObtainTokenView
 from kla_connect_profiles.views import ProfileViewSet, profile_verified, LanguageViewSet
 from rest_framework_simplejwt.views import TokenRefreshView
-from kla_connect_location.views import LocationViewSet
+from kla_connect_location.views import LocationViewSet, LocationDetailViewSet
 from kla_connect_incidents.views import IncidentTypeViewSet, IncidentViewSet, ReportTypeViewSet, ReportViewSet
 from django.conf import settings
 
@@ -42,6 +42,7 @@ router.register(r'users/register', UserCreateView)
 router.register(r'users', UserView)
 router.register(r'profile', ProfileViewSet, basename='Profiles')
 router.register(r'location', LocationViewSet, basename='Location')
+router.register(r'location', LocationDetailViewSet, basename='Location')
 router.register(r'incident/type', IncidentTypeViewSet,
                 basename='Incident-types')
 router.register(r'incident', IncidentViewSet, basename='Incident')
