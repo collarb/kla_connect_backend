@@ -123,8 +123,8 @@ class NestedModelSerializer(serializers.ModelSerializer):
                 else:
                     serializer = s(data=v, **dict(context=self.context))
                     serializer.save()
-        except Exception as e:
-            raise e
+        except Exception:
+            pass
         return instance
 
 
