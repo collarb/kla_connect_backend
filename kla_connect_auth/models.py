@@ -13,6 +13,7 @@ class KlaConnectUser(AbstractUser):
     
     class Meta(AbstractUser.Meta):
         ordering = ['-date_joined']
+        unique_together = ('email',)
     
 
     @property

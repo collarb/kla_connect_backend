@@ -83,7 +83,7 @@ ROOT_URLCONF = 'kla_connect.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -95,6 +95,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 WSGI_APPLICATION = 'kla_connect.wsgi.application'
 
@@ -199,6 +200,7 @@ EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = env('EMAIL_USE_TLS')
 EMAIL_PORT = env('EMAIL_PORT')
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
+HOST = env('HOST')
 
 try:
     from kla_connect_env.local import *

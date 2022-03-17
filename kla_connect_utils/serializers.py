@@ -29,6 +29,7 @@ class NestedModelSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         return self.nested_save_override(validated_data, instance=instance)
 
+    @transaction.atomic
     def nested_save_override(self, validated_data, instance=None):
         nested_method_models = []
         nested_data = []
@@ -122,8 +123,8 @@ class NestedModelSerializer(serializers.ModelSerializer):
                 else:
                     serializer = s(data=v, **dict(context=self.context))
                     serializer.save()
-        except Exception:
-            pass
+        except Exception as e:
+            raise e
         return instance
 
 

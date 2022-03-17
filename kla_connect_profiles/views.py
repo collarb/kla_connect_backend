@@ -36,7 +36,7 @@ class ProfileViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, Ge
         user.deleted = True
         user.save()
 
-    @action(methods=['post'],
+    @action(methods=['post','get'],
             detail=False,
             url_path="verify",
             url_name="verify-profile",
@@ -46,8 +46,13 @@ class ProfileViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, Ge
         """
             verify user profile
         """
-        serialized_data = self.get_serializer_class(request.data)
-        if serialized_data.is_valid(raise_exception=True):
+        verification_data = {}
+        if request.method=='post':
+            verification_data = request.data
+        else:
+            verification_data = request.GET
+        serialized_data = self.get_serializer_class()(data=verification_data)
+        if serialized_data.is_valid():
             verification_email = serialized_data.data.get('email')
             verification_mobile = serialized_data.data.get('phone')
             verification_code = serialized_data.data.get('verification_code')
