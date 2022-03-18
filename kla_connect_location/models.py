@@ -7,7 +7,13 @@ class Area(TimeStampModel):
                                on_delete=models.CASCADE, blank=True, null=True)
     
     def __str__(self):
-        return '{}'.format(self.name)
+        display_name = self.name
+        if self.parent:
+            display_name = '{} / {}'.format(display_name,self.parent)
+        return display_name
+    
+    def __repr__(self):
+        return self.__str__()
     
     @staticmethod
     def has_object_write_permission(request):
