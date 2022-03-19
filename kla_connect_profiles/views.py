@@ -51,7 +51,7 @@ class ProfileViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, Ge
             verification_data = request.data
         else:
             verification_data = request.GET
-        serialized_data = self.get_serializer_class()(data=verification_data)
+        serialized_data = self.get_serializer(data=verification_data)
         if serialized_data.is_valid():
             verification_email = serialized_data.data.get('email')
             verification_mobile = serialized_data.data.get('phone')

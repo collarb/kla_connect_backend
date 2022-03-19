@@ -41,7 +41,6 @@ class KlaConnectVerifyProfileSerializer(serializers.Serializer):
     verification_code = serializers.CharField(required=True)
 
     def validate(self, attrs):
-        print("attrrs",attrs)
         if not attrs.get('email') and not attrs.get('phone'):
             raise serializers.ValidationError("Either phone number or email must be provided", "detail")
         return super(KlaConnectVerifyProfileSerializer, self).validate(attrs)

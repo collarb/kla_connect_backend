@@ -9,7 +9,7 @@ from rest_framework.exceptions import AuthenticationFailed
 
 
 class KlaConnectUserSerializer(SimpleUserSerializer, NestedModelSerializer):
-    profile = SimpleProfileSerializer(required=False)
+    profile = SimpleProfileSerializer(required=True)
 
     def save_nested_profile(self, data, instance, created=False):
         if created:
@@ -18,7 +18,7 @@ class KlaConnectUserSerializer(SimpleUserSerializer, NestedModelSerializer):
                 data=profile_data)
             if profile_instance.is_valid():
                 profile_instance.save()
-            
+
     @transaction.atomic
     def create(self, validated_data):
         instance = super(KlaConnectUserSerializer, self).create(validated_data)

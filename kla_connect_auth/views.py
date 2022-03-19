@@ -10,13 +10,31 @@ from kla_connect_utils.filterbackends import DEFAULT_FILTER_BACKENDS
 from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+
 class KlaConnectObtainTokenView(TokenObtainPairView):
     serializer_class = KlaConnectUserObtainPairSerializer
+
 
 class UserCreateView(CreateModelMixin, GenericViewSet):
     serializer_class = KlaConnectUserSerializer
     queryset = KlaConnectUser.objects.all()
     permission_classes = ()
+
+    def create(self, request, *args, **kwargs):
+        """
+            Response
+            {
+                "message":string
+            }
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response({
+            'message': "Verification code sent to {}".format(serializer.data["email"])
+        },
+            status=status.HTTP_201_CREATED, headers=headers)
 
 
 class UserView(ListModelMixin, RetrieveModelMixin,
