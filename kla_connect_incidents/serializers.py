@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from kla_connect_incidents.models import KlaConnectIncidentType, KlaConnectIncident, KlaConnectReportType, KlaConnectReport
-from kla_connect_location.serializers import AreaSerializer
+from kla_connect_location.serializers import SimplAreaSerializer
 from kla_connect_utils.serializers import CreateOnlyCurrentUserDefault
 from kla_connect_utils.mixins import GetCurrentUserAnnotatedSerializerMixin
 from kla_connect_utils.serializers import SimpleUserSerializer
@@ -22,7 +22,7 @@ class KlaConnectIncidentSerializer(serializers.ModelSerializer,
     type_display = KlaConnectIncidentTypeSerializer(
         source='type', read_only=True)
     priority_display = serializers.CharField(read_only=True)
-    area = AreaSerializer(source="affected_area", read_only=True)
+    area = SimplAreaSerializer(source="affected_area", read_only=True)
     user = SimpleUserSerializer(required=False, read_only=True)
 
     def create(self, validated_data):
@@ -46,7 +46,7 @@ class KlaConnectReportSerializer(serializers.ModelSerializer,
 
     type_display = KlaConnectIncidentTypeSerializer(
         source='type', read_only=True)
-    area = AreaSerializer(source="affected_area", read_only=True)
+    area = SimplAreaSerializer(source="affected_area", read_only=True)
     user = SimpleUserSerializer(required=False, read_only=True)
 
     def create(self, validated_data):
