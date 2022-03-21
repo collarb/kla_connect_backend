@@ -19,7 +19,7 @@ class KlaConnectIncidentType(TimeStampModel):
     def has_read_permission(request):
         return True
 
-    def has_object_read_permission(request):
+    def has_object_read_permission(self,request):
         return True
     
     @staticmethod
@@ -28,7 +28,7 @@ class KlaConnectIncidentType(TimeStampModel):
         return not request.user.is_citizen
     
     @allow_staff_or_superuser
-    def has_object_write_permissions(request):
+    def has_object_write_permissions(self,request):
         return not request.user.is_citizen
     
     
@@ -43,7 +43,7 @@ class KlaConnectReportType(TimeStampModel):
     def has_read_permission(request):
         return True
 
-    def has_object_read_permission(request):
+    def has_object_read_permission(self,request):
         return True
     
     @staticmethod
@@ -52,7 +52,7 @@ class KlaConnectReportType(TimeStampModel):
         return not request.user.is_citizen
     
     @allow_staff_or_superuser
-    def has_object_write_permissions(request):
+    def has_object_write_permissions(self,request):
         return not request.user.is_citizen
 
 
@@ -89,10 +89,10 @@ class KlaConnectIncident(TimeStampModel):
         return True
 
     @allow_staff_or_superuser
-    def has_object_read_permission(request):
+    def has_object_read_permission(self,request):
         return request.user == self.user
 
-    def has_object_write_permission(request):
+    def has_object_write_permission(self,request):
         return (request.user == self.user or not request.user.is_citizen) and \
             self.status != INCIDENT_STATUS_COMPLETE
 
@@ -130,10 +130,10 @@ class KlaConnectReport(TimeStampModel):
     def has_read_permission(request):
         return True
 
-    def has_object_read_permission(request):
+    def has_object_read_permission(self,request):
         return True
 
-    def has_object_write_permission(request):
+    def has_object_write_permission(self,request):
         return not request.user.is_citizen and self.status != INCIDENT_STATUS_COMPLETE
 
     @staticmethod
