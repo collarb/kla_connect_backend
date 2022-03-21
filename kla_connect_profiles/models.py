@@ -35,7 +35,7 @@ class KlaConnectUserProfile(TimeStampModel):
         get_user_model(), on_delete=models.CASCADE, related_name="userprofile")
     nationality = models.IntegerField(
         choices=NATIONALITY_CHOICES, blank=False, null=False)
-    nin = models.CharField(max_length=NIN_FIELD_LENGTH, blank=True, unique=True)
+    nin = models.CharField(max_length=NIN_FIELD_LENGTH, blank=True)
     mobile_number = models.CharField(
         max_length=15, blank=False, null=False, unique=True)
     mobile_number_2 = models.CharField(max_length=15, blank=True, null=True)
@@ -49,8 +49,8 @@ class KlaConnectUserProfile(TimeStampModel):
         KlaConnectLanguage, null=True, blank=True, on_delete=models.DO_NOTHING)
 
     head_of_department = models.BooleanField(default=False)
-    address = models.TextField()
-    date_of_birth = models.DateField()
+    address = models.TextField(blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)
 
     id_type = models.CharField(max_length=50, blank=True, null=True)
     id_number = models.CharField(max_length=150, blank=True, null=True)

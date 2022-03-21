@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from kla_connect_utils.filterbackends import DEFAULT_FILTER_BACKENDS
 from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
+from kla_connect_profiles.models import ProfileValidation
 
 
 class KlaConnectObtainTokenView(TokenObtainPairView):
@@ -31,8 +32,10 @@ class UserCreateView(CreateModelMixin, GenericViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
+        code = ProfileValidation.objects.get(
+            profile__id=serializer.data['profile']['id']).code
         return Response({
-            'message': "Verification code sent to {}".format(serializer.data["email"])
+            'message': "Verification code {} sent to {}".format(code, serializer.data["email"])
         },
             status=status.HTTP_201_CREATED, headers=headers)
 

@@ -18,6 +18,8 @@ class KlaConnectUserSerializer(SimpleUserSerializer, NestedModelSerializer):
                 data=profile_data)
             if profile_instance.is_valid():
                 profile_instance.save()
+            else:
+                raise serializers.ValidationError(profile_instance.errors)
 
     @transaction.atomic
     def create(self, validated_data):

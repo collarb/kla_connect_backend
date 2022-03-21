@@ -1,6 +1,7 @@
 from kla_connect_utils.serializers import SimpleUserSerializer, KlaConnectUserProfile, \
     serializers, NestedModelSerializer, SimpleKlaConnectLanguage
 from kla_connect_profiles.models import KlaConnectLanguageWord
+from rest_framework.validators import UniqueTogetherValidator
 
 
 class KlaConnectLanguageWordSerializer(serializers.ModelSerializer):
@@ -33,6 +34,16 @@ class KlaConnectUserProfileSerializer(NestedModelSerializer):
     class Meta:
         model = KlaConnectUserProfile
         fields = '__all__'
+        # validators = [
+        #     UniqueTogetherValidator(
+        #         queryset=KlaConnectUserProfile.objects.all(),
+        #         fields=['id_type', 'id_number']
+        #     ),
+        #     UniqueTogetherValidator(
+        #         queryset=KlaConnectUserProfile.objects.all(),
+        #         fields=['nationality', 'nin']
+        #     )
+        # ]
 
 
 class KlaConnectVerifyProfileSerializer(serializers.Serializer):
