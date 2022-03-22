@@ -142,8 +142,8 @@ class KlaConnectReport(TimeStampModel, ChangeNotifyModel):
         return True
 
     def has_object_write_permission(self, request):
-        return request.user.is_citizen and self.status != INCIDENT_STATUS_COMPLETE
+        return not request.user.is_citizen and self.status != INCIDENT_STATUS_COMPLETE
 
     @staticmethod
     def has_write_permission(request):
-        return True
+        return (not request.user.is_citizen)
