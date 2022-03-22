@@ -4,6 +4,8 @@ from kla_connect_location.serializers import SimplAreaSerializer
 from kla_connect_utils.serializers import CreateOnlyCurrentUserDefault
 from kla_connect_utils.mixins import GetCurrentUserAnnotatedSerializerMixin
 from kla_connect_utils.serializers import SimpleUserSerializer
+from kla_connect_auth.models import CustomNotification
+from generic_relations.relations import GenericRelatedField
 
 
 class KlaConnectIncidentTypeSerializer(serializers.ModelSerializer):
@@ -84,3 +86,36 @@ class KlaConnectReportSerializer(serializers.ModelSerializer,
                               'required': True}
         }
         read_only_fields = ('ref',)
+
+
+class CustomNotificationSerializer(serializers.ModelSerializer):
+
+    recipient = SimpleUserSerializer(many=False, read_only=True)
+    action = serializers.CharField(source='verb')
+    activity_type = serializers.SerializerMethodField()
+    activity = GenericRelatedField({
+        KlaConnectIncident: KlaConnectIncidentSerializer(),
+        KlaConnectReport: KlaConnectReportSerializer()
+    }, source="action_object")
+
+    class Meta:
+        model = CustomNotification
+        exclude = (
+            "verb",
+            "action_object_content_type",
+            "action_object_object_id",
+            'actor_object_id',
+            'actor_content_type',
+            'target_object_id',
+            'target_content_type'
+            )
+
+    def get_activity_type(self, obj):
+        return get_instance_type(obj.action_object)
+
+
+def get_instance_type(instance):
+        if instance:
+            instance_class = type(instance)
+            return instance_class.__name__
+        return None

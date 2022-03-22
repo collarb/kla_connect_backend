@@ -92,7 +92,7 @@ def handle_report_update(sender, instance, created, **kwargs):
         if rejected_report:
             notify.send(
                 instance.author,
-                recipient=incident.user,
+                recipient=instance.user,
                 verb=REJECTED_VERB,
                 action_object=instance,
                 level="warning",

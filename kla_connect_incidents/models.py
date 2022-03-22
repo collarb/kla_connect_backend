@@ -1,7 +1,7 @@
 from kla_connect_utils.models import TimeStampModel, models
 from django.contrib.auth import get_user_model
 from kla_connect_utils.constants import EMERGENCY_CHOICES, INCIDENT_STATUS_PENDING, \
-    INCIDENT_STATUS_COMPLETE
+    INCIDENT_STATUS_COMPLETE, INCIDENT_STATUS_CHOICES, INCIDENT_REPORT_STATUS_CHOICES
 from kla_connect_utils import helpers
 from dry_rest_permissions.generics import allow_staff_or_superuser
 from kla_connect_location.models import Area
@@ -84,7 +84,8 @@ class KlaConnectIncident(TimeStampModel, ChangeNotifyModel):
                            default=helpers.generate_ref_number, unique=True)
 
     feedback = models.CharField(max_length=250, blank=True, null=True)
-    status = models.CharField(max_length=25, default=INCIDENT_STATUS_PENDING)
+    status = models.CharField(
+        max_length=25, default=INCIDENT_STATUS_PENDING, choices=INCIDENT_STATUS_CHOICES)
 
     def __str__(self):
         return "{}|{}".format(self.subject, self.type)
@@ -127,7 +128,8 @@ class KlaConnectReport(TimeStampModel, ChangeNotifyModel):
                            default=helpers.generate_rep_ref_number, unique=True)
 
     feedback = models.CharField(max_length=250, blank=True, null=True)
-    status = models.CharField(max_length=25, default=INCIDENT_STATUS_PENDING)
+    status = models.CharField(
+        max_length=25, default=INCIDENT_STATUS_PENDING, choices=INCIDENT_REPORT_STATUS_CHOICES)
 
     def __str__(self):
         return "{}|{}".format(self.title, self.type)
@@ -140,8 +142,8 @@ class KlaConnectReport(TimeStampModel, ChangeNotifyModel):
         return True
 
     def has_object_write_permission(self, request):
-        return not request.user.is_citizen and self.status != INCIDENT_STATUS_COMPLETE
+        return request.user.is_citizen and self.status != INCIDENT_STATUS_COMPLETE
 
     @staticmethod
     def has_write_permission(request):
-        return (not request.user.is_citizen)
+        return True

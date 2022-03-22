@@ -1,6 +1,6 @@
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import ListModelMixin
-from kla_connect_auth.serializers import CustomNotificationSerializer, CustomNotification
+from kla_connect_incidents.serializers import CustomNotificationSerializer, CustomNotification
 from rest_framework.permissions import IsAuthenticated
 from kla_connect_utils.filterbackends import DEFAULT_FILTER_BACKENDS, NotificationsFilterBackend
 from rest_framework.decorators import action

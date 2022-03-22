@@ -1,4 +1,4 @@
-from kla_connect_auth.models import KlaConnectUser, CustomNotification
+from kla_connect_auth.models import KlaConnectUser
 from kla_connect_utils.serializers import NestedModelSerializer, \
     SimpleProfileSerializer, serializers, SimpleUserSerializer, transaction
 from kla_connect_profiles.serializers import KlaConnectUserProfileSerializer
@@ -53,8 +53,3 @@ class KlaConnectUserObtainPairSerializer(TokenObtainPairSerializer):
                     self.account_unverified_message, self.account_verification_code)
         except KlaConnectUser.userprofile.RelatedObjectDoesNotExist:
             return super().get_token(user)
-
-class CustomNotificationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomNotification
-        exclude = []
