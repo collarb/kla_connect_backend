@@ -47,3 +47,12 @@ class KlaConnectReportFilterBackend(DRYPermissionFiltersBase):
             queryset = queryset.filter(status=INCIDENT_STATUS_COMPLETE)
 
         return queryset
+    
+
+class NotificationsFilterBackend(DRYPermissionFiltersBase):
+    def filter_queryset(self, request, queryset, view):
+        user = request.user
+        # if user.is_citizen:
+        queryset = queryset.filter(recipient=user)
+        
+        return queryset

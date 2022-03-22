@@ -8,3 +8,4 @@ drf-yasg==1.20.0
 Markdown==3.3.6
 django-cors-headers
 Pillow
+django-notifications-hq==1.7.0

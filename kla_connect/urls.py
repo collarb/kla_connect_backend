@@ -25,7 +25,9 @@ from kla_connect_profiles.views import ProfileViewSet, profile_verified, Languag
 from rest_framework_simplejwt.views import TokenRefreshView
 from kla_connect_location.views import LocationViewSet, LocationDetailViewSet
 from kla_connect_incidents.views import IncidentTypeViewSet, IncidentViewSet, ReportTypeViewSet, ReportViewSet
+from kla_connect_utils.views import NotificationsViewSet
 from django.conf import settings
+from notifications import urls as notify_urls
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -49,6 +51,7 @@ router.register(r'incident', IncidentViewSet, basename='Incident')
 router.register(r'report/type', ReportTypeViewSet, basename='Incident-types')
 router.register(r'report', ReportViewSet, basename='Incidents')
 router.register(r'language',LanguageViewSet, basename="Languages")
+router.register(r'notifications',NotificationsViewSet, basename="Notifications")
 
 
 urlpatterns = [

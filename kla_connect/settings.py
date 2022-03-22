@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'rest_framework_simplejwt',
     'corsheaders',
+    'notifications',
 
     # local
     'kla_connect_auth',
@@ -201,6 +202,10 @@ EMAIL_USE_TLS = env('EMAIL_USE_TLS')
 EMAIL_PORT = env('EMAIL_PORT')
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 HOST = env('HOST')
+
+
+DJANGO_NOTIFICATIONS_CONFIG = {'USE_JSONFIELD': True}
+NOTIFICATIONS_NOTIFICATION_MODEL = 'kla_connect_auth.CustomNotification'
 
 try:
     from kla_connect_env.local import *

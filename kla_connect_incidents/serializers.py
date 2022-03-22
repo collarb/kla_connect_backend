@@ -10,11 +10,13 @@ class KlaConnectIncidentTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = KlaConnectIncidentType
         fields = "__all__"
-        
+
+
 class KlaConnectReportTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = KlaConnectReportType
         fields = '__all__'
+
 
 class KlaConnectIncidentSerializer(serializers.ModelSerializer,
                                    GetCurrentUserAnnotatedSerializerMixin):
@@ -28,7 +30,17 @@ class KlaConnectIncidentSerializer(serializers.ModelSerializer,
     def create(self, validated_data):
         user = self.get_current_user()
         validated_data['user'] = user
+        validated_data['author'] = user
         return super(KlaConnectIncidentSerializer, self).create(validated_data)
+
+    def update(self, instance, validated_data):
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            user = request.user
+            validated_data["author"] = user
+        validated_data['previous_status'] = instance.status
+        validated_data['previous_feedback'] = instance.feedback
+        return super(KlaConnectIncidentSerializer, self).update(instance, validated_data)
 
     class Meta:
         model = KlaConnectIncident
@@ -39,10 +51,10 @@ class KlaConnectIncidentSerializer(serializers.ModelSerializer,
                               'required': True}
         }
         read_only_fields = ('ref',)
-        
+
 
 class KlaConnectReportSerializer(serializers.ModelSerializer,
-                                   GetCurrentUserAnnotatedSerializerMixin):
+                                 GetCurrentUserAnnotatedSerializerMixin):
 
     type_display = KlaConnectIncidentTypeSerializer(
         source='type', read_only=True)
@@ -52,7 +64,16 @@ class KlaConnectReportSerializer(serializers.ModelSerializer,
     def create(self, validated_data):
         user = self.get_current_user()
         validated_data['user'] = user
-        return super(KlaConnectIncidentSerializer, self).create(validated_data)
+        return super(KlaConnectReportSerializer, self).create(validated_data)
+
+    def update(self, instance, validated_data):
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            user = request.user
+            validated_data["author"] = user
+        validated_data['previous_status'] = instance.status
+        validated_data['previous_feedback'] = instance.feedback
+        return super(KlaConnectReportSerializer, self).update(instance, validated_data)
 
     class Meta:
         model = KlaConnectReport

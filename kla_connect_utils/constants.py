@@ -14,15 +14,15 @@ GENDER_MALE = "male"
 GENDER_FEMALE = "female"
 
 GENDER_CHOICES = (
-    (GENDER_MALE,"Male"),
-    (GENDER_FEMALE,"Female")
+    (GENDER_MALE, "Male"),
+    (GENDER_FEMALE, "Female")
 )
 
 NATIONALITY_UG = 1
 NATIONALITY_UG_NONE = 0
 
 NATIONALITY_CHOICES = (
-    (NATIONALITY_UG,"Ugandan"),
+    (NATIONALITY_UG, "Ugandan"),
     (NATIONALITY_UG_NONE, "Non Uganda")
 )
 
@@ -30,7 +30,7 @@ NIN_FIELD_LENGTH = 14
 VALIDATION_CODE_LENGTH = 5
 
 PENDING_OTP = "pending"
-CONFIRMED_OTP =  "confirmed"
+CONFIRMED_OTP = "confirmed"
 
 EMERGENCY_INCIDENT = 1
 NON_EMERGENCY_INCIDENT = 2
@@ -43,3 +43,11 @@ EMERGENCY_CHOICES = (
 INCIDENT_STATUS_PENDING = "pending"
 INCIDENT_STATUS_FOR_REVIEW = "for_review"
 INCIDENT_STATUS_COMPLETE = "complete"
+INCIDENT_REPORT_REJECTED = "rejected"
+
+FEEDBACK_CHANGE_VERB = "feedbackchanged"
+REJECTED_VERB = "rejected"
+COMPLETED_VERB = "completed"
+INCIDENT_ALERT = "incident alert"
+REPORT_ALERT = "Report Alert"
+REPORT_REVIEW_VERB = "Report Review"
