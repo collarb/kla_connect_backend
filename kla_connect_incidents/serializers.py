@@ -33,7 +33,6 @@ class KlaConnectIncidentSerializer(serializers.ModelSerializer,
     def create(self, validated_data):
         user = self.get_current_user()
         validated_data['user'] = user
-        validated_data['author'] = user
         return super(KlaConnectIncidentSerializer, self).create(validated_data)
 
     def update(self, instance, validated_data):
