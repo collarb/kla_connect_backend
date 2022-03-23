@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from kla_connect_incidents.models import KlaConnectIncidentType, KlaConnectIncident, KlaConnectReportType, KlaConnectReport
+from kla_connect_incidents.models import KlaConnectIncidentType, KlaConnectIncident, KlaConnectReportType, \
+    KlaConnectReport, ReportLike
 from kla_connect_location.serializers import SimplAreaSerializer
 from kla_connect_utils.serializers import CreateOnlyCurrentUserDefault
 from kla_connect_utils.mixins import GetCurrentUserAnnotatedSerializerMixin
@@ -62,6 +63,9 @@ class KlaConnectReportSerializer(serializers.ModelSerializer,
         source='type', read_only=True)
     area = SimplAreaSerializer(source="affected_area", read_only=True)
     user = SimpleUserSerializer(required=False, read_only=True)
+    views_count = serializers.SerializerMethodField()
+    thumbs_up = serializers.SerializerMethodField()
+    thumbs_down = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         user = self.get_current_user()
@@ -86,6 +90,16 @@ class KlaConnectReportSerializer(serializers.ModelSerializer,
                               'required': True}
         }
         read_only_fields = ('ref',)
+        
+    def get_views_count(self, obj):
+        return obj.views.count()
+    
+    def get_thumbs_up(self, obj):
+        return obj.likes.filter(thumbs_up=True).count()
+    
+    def get_thumbs_down(self, obj):
+        return obj.likes.filter(thumbs_up=False).count()
+    
 
 
 class CustomNotificationSerializer(serializers.ModelSerializer):
@@ -119,3 +133,9 @@ def get_instance_type(instance):
             instance_class = type(instance)
             return instance_class.__name__
         return None
+
+
+class ReportLikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReportLike
+        fields = "__all__"

@@ -1,7 +1,8 @@
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
+from rest_framework.mixins import CreateModelMixin
 from kla_connect_incidents.serializers import KlaConnectIncidentType, KlaConnectIncident, \
     KlaConnectIncidentSerializer, KlaConnectIncidentTypeSerializer, KlaConnectReportType, KlaConnectReportTypeSerializer, \
-    KlaConnectReport, KlaConnectReportSerializer
+    KlaConnectReport, KlaConnectReportSerializer, ReportLikeSerializer, ReportLike
 from dry_rest_permissions.generics import DRYPermissions
 from rest_framework.permissions import IsAuthenticated
 from kla_connect_utils.filterbackends import KlaConnectIncidentFilterBackend, DEFAULT_FILTER_BACKENDS, \
@@ -29,7 +30,8 @@ class ReportTypeViewSet(ModelViewSet):
     queryset = KlaConnectReportType.objects.all()
     lookup_value_regex = '[-\w.]+'
     permission_classes = (IsAuthenticated, DRYPermissions)
-    
+
+
 class ReportViewSet(ModelViewSet):
     serializer_class = KlaConnectReportSerializer
     queryset = KlaConnectReport.objects.all()
@@ -37,3 +39,19 @@ class ReportViewSet(ModelViewSet):
     permission_classes = (IsAuthenticated, DRYPermissions)
     filter_backends = DEFAULT_FILTER_BACKENDS + \
         (KlaConnectReportFilterBackend,)
+
+    def retrieve(self, request, *args, **kwargs):
+        user = request.user
+        if user.is_citizen:
+            try:
+                this_report = self.get_object()
+                this_report.views.create(user=user)
+            except Exception as e:
+                pass
+        return super(ReportViewSet, self).retrieve(request, *args, **kwargs)
+
+
+class ReportLikeViewSet(CreateModelMixin, GenericViewSet):
+    serializer_class = ReportLikeSerializer
+    queryset = ReportLike.objects.all()
+    permission_classes = (IsAuthenticated, DRYPermissions)

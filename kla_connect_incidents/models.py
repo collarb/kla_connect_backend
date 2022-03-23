@@ -147,3 +147,32 @@ class KlaConnectReport(TimeStampModel, ChangeNotifyModel):
     @staticmethod
     def has_write_permission(request):
         return (not request.user.is_citizen)
+
+
+class ReportView(TimeStampModel):
+    user = models.ForeignKey(get_user_model(), null=False, on_delete=models.CASCADE,
+                             blank=False, related_name="reports_viewed")
+    report = models.ForeignKey(
+        KlaConnectReport, null=False, blank=False, on_delete=models.CASCADE, related_name="views")
+
+    class Meta:
+        unique_together = ('user', 'report')
+
+
+class ReportLike(TimeStampModel):
+    user = models.ForeignKey(get_user_model(), null=False, on_delete=models.CASCADE,
+                             blank=False, related_name="reports_liked")
+    report = models.ForeignKey(
+        KlaConnectReport, null=False, blank=False, on_delete=models.CASCADE, related_name="likes")
+
+    thumbs_up = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ('user', 'report')
+
+    def has_object_write_permission(self, request):
+        return False
+
+    @staticmethod
+    def has_write_permission(request):
+        return request.user.is_citizen
