@@ -167,6 +167,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5621440
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5621440
+
 AUTH_USER_MODEL = "kla_connect_auth.KlaConnectUser"
 
 REST_FRAMEWORK = {

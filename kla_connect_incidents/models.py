@@ -5,6 +5,7 @@ from kla_connect_utils.constants import EMERGENCY_CHOICES, INCIDENT_STATUS_PENDI
 from kla_connect_utils import helpers
 from dry_rest_permissions.generics import allow_staff_or_superuser
 from kla_connect_location.models import Area
+from django_resized import ResizedImageField
 
 
 class KlaConnectIncidentType(TimeStampModel):
@@ -78,7 +79,7 @@ class KlaConnectIncident(TimeStampModel, ChangeNotifyModel):
         choices=EMERGENCY_CHOICES, null=False, blank=False)
     subject = models.TextField(null=False, blank=True)
     description = models.TextField(null=False, blank=False)
-    attachment = models.ImageField(upload_to='attachments/%Y/%m/%d', blank=True,
+    attachment = ResizedImageField(size=[500, 300],quality=75,upload_to='attachments/incidents/%Y/%m/%d', blank=True,
                                    null=True)
     ref = models.CharField(max_length=20, blank=False, null=False,
                            default=helpers.generate_ref_number, unique=True)
@@ -122,7 +123,7 @@ class KlaConnectReport(TimeStampModel, ChangeNotifyModel):
         null=True, blank=True)
     title = models.CharField(max_length=225, null=False, blank=True)
     description = models.TextField(null=False, blank=False)
-    attachment = models.ImageField(upload_to='attachments/%Y/%m/%d', blank=True,
+    attachment = models.FileField(upload_to='attachments/reports/%Y/%m/%d', blank=True,
                                    null=True)
     ref = models.CharField(max_length=20, blank=False, null=False,
                            default=helpers.generate_rep_ref_number, unique=True)
