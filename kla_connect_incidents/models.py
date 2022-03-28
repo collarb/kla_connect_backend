@@ -71,9 +71,9 @@ class KlaConnectIncident(TimeStampModel, ChangeNotifyModel):
         Area, on_delete=models.CASCADE,
         null=True, blank=True)
     latitude = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True)
+        max_digits=25, decimal_places=20, null=True, blank=True)
     longitude = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True)
+        max_digits=25, decimal_places=20, null=True, blank=True)
     priority = models.IntegerField(
         choices=EMERGENCY_CHOICES, null=False, blank=False)
     subject = models.TextField(null=False, blank=True)
