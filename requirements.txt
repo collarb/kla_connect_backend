@@ -13,3 +13,4 @@ rest-framework-generic-relations==2.1.0
 xlrd==2.0.1
 pandas==1.4.1
 openpyxl==3.0.9
+django_resized==0.3.11
