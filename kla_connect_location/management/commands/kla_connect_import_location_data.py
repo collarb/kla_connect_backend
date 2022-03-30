@@ -18,12 +18,12 @@ class Command(BaseCommand):
         villages = df["Village"]
         streets = df["Street"]
         for i in range(len(divisions)):
-            division, created = Area.objects.get_or_create(name__iexact=divisions[i].title(),parent__isnull=True)
+            division, created = Area.objects.get_or_create(name__iexact=divisions[i].title(),parent__isnull=True, defaults={'name':divisions[i].title()})
             print(division,created)
-            parish, _created = division.child_areas.get_or_create(name__iexact=parishes[i].title())
+            parish, _created = division.child_areas.get_or_create(name__iexact=parishes[i].title(),defaults={'name':parishes[i].title()})
             print(parish,_created)
-            village, __created = parish.child_areas.get_or_create(name__iexact=villages[i].title())
+            village, __created = parish.child_areas.get_or_create(name__iexact=villages[i].title(),defaults={'name':villages[i].title()})
             print(village, __created)
-            street, ___created = village.child_areas.get_or_create(name__iexact=streets[i].title())
+            street, ___created = village.child_areas.get_or_create(name__iexact=streets[i].title(),defaults={'name':streets[i].title()})
             print(street, ___created)
             
