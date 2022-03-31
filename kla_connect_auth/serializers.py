@@ -3,7 +3,6 @@ from kla_connect_utils.serializers import NestedModelSerializer, \
     SimpleProfileSerializer, serializers, SimpleUserSerializer, transaction
 from kla_connect_profiles.serializers import KlaConnectUserProfileSerializer
 from kla_connect_utils.constants import CITIZEN_USER
-from kla_connect_profiles.models import ProfileValidation
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.exceptions import AuthenticationFailed
 
@@ -28,8 +27,16 @@ class KlaConnectUserSerializer(SimpleUserSerializer, NestedModelSerializer):
             instance.is_staff = True
         instance.set_password(validated_data['password'])
         instance.save()
-        return instance
-
+        verification_code = instance.userprofile.profilevalidation_set.last().code
+        message = "Verification code {} sent to {}".format(verification_code, validated_data["email"])
+        return {"message":message}
+    
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        if validated_data.get('password'):
+            instance.set_password(validated_data['password'])
+        return super(KlaConnectUserSerializer, self).update(instance, validated_data)
+    
 
 class KlaConnectUpdateUserSerializer(KlaConnectUserSerializer):
     class Meta(KlaConnectUserSerializer.Meta):

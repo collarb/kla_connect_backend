@@ -10,6 +10,7 @@ from kla_connect_utils.filterbackends import DEFAULT_FILTER_BACKENDS
 from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
 from kla_connect_profiles.models import ProfileValidation
+from django.db.models import Q
 
 
 class KlaConnectObtainTokenView(TokenObtainPairView):
@@ -28,16 +29,30 @@ class UserCreateView(CreateModelMixin, GenericViewSet):
                 "message":string
             }
         """
+        user_filter_kwargs = Q()
+        if request.data.get('email'):
+            user_filter_kwargs |= Q(email=request.data['email'])
+
+        if request.data.get('username'):
+            user_filter_kwargs |= Q(username=request.data.get('username'))
+
+        if request.data.get('profile'):
+            mobile_number = request.data['profile'].get('mobile_number')
+            if mobile_number:
+                user_filter_kwargs |= Q(
+                    userprofile__mobile_number=mobile_number)
+
+        if bool(user_filter_kwargs):
+            instance = self.get_queryset().filter(
+                user_filter_kwargs, userprofile__verified=False).first()
+            if instance:
+                instance.delete()
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        code = ProfileValidation.objects.get(
-            profile__id=serializer.data['profile']['id']).code
-        return Response({
-            'message': "Verification code {} sent to {}".format(code, serializer.data["email"])
-        },
-            status=status.HTTP_201_CREATED, headers=headers)
+        response = serializer.save()
+        return Response(response,
+                        status=status.HTTP_201_CREATED)
 
 
 class UserView(ListModelMixin, RetrieveModelMixin,

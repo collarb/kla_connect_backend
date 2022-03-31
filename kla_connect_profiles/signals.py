@@ -18,7 +18,7 @@ def handle_profile_verification(sender, instance, created, **kwargs):
 
 
 
-# @receiver(post_save, sender=ProfileValidation)
+@receiver(post_save, sender=ProfileValidation)
 def send_otp_email(sender, instance, created, **kwargs):
     if created:
         send_to_email = instance.profile.user.email
