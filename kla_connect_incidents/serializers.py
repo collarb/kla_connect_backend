@@ -2,11 +2,13 @@ from rest_framework import serializers
 from kla_connect_incidents.models import KlaConnectIncidentType, KlaConnectIncident, KlaConnectReportType, \
     KlaConnectReport, ReportLike
 from kla_connect_location.serializers import SimplAreaSerializer
-from kla_connect_utils.serializers import CreateOnlyCurrentUserDefault
+from kla_connect_utils.serializers import CreateOnlyCurrentUserDefault, transaction
 from kla_connect_utils.mixins import GetCurrentUserAnnotatedSerializerMixin
 from kla_connect_utils.serializers import SimpleUserSerializer
 from kla_connect_auth.models import CustomNotification
 from generic_relations.relations import GenericRelatedField
+from kla_connect_utils import constants
+from rest_framework.exceptions import ValidationError
 
 
 class KlaConnectIncidentTypeSerializer(serializers.ModelSerializer):
@@ -27,6 +29,7 @@ class KlaConnectIncidentSerializer(serializers.ModelSerializer,
     type_display = KlaConnectIncidentTypeSerializer(
         source='type', read_only=True)
     priority_display = serializers.CharField(read_only=True)
+    status_display = serializers.CharField(read_only=True)
     area = SimplAreaSerializer(source="affected_area", read_only=True)
     user = SimpleUserSerializer(required=False, read_only=True)
 
@@ -37,9 +40,24 @@ class KlaConnectIncidentSerializer(serializers.ModelSerializer,
 
     def update(self, instance, validated_data):
         request = self.context.get("request")
+        no_permissions = False
         if request and hasattr(request, "user"):
             user = request.user
             validated_data["author"] = user
+
+        # check if user if status change
+        status_change_to = validated_data.get('status')
+        if status_change_to:
+            if status_change_to in [constants.INCIDENT_STATUS_COMPLETE] and not request.user.is_manager:
+                no_permissions = True
+
+            if status_change_to in [constants.INCIDENT_STATUS_FOR_REVIEW] and not request.user.is_data_entrant:
+                no_permissions = True
+
+        if no_permissions:
+            raise ValidationError(
+                "You don't have permissions to perform this action"
+            )
         validated_data['previous_status'] = instance.status
         validated_data['previous_feedback'] = instance.feedback
         return super(KlaConnectIncidentSerializer, self).update(instance, validated_data)
@@ -49,6 +67,7 @@ class KlaConnectIncidentSerializer(serializers.ModelSerializer,
         fields = '__all__'
         extra_kwargs = {
             'type': {'write_only': True, 'required': True},
+            'status': {'write_only': True, 'required': False},
             'affected_area': {'write_only': True,
                               'required': True}
         }
@@ -65,17 +84,35 @@ class KlaConnectReportSerializer(serializers.ModelSerializer,
     views_count = serializers.SerializerMethodField()
     thumbs_up = serializers.SerializerMethodField()
     thumbs_down = serializers.SerializerMethodField()
+    status_display = serializers.CharField(read_only=True)
 
     def create(self, validated_data):
         user = self.get_current_user()
         validated_data['user'] = user
         return super(KlaConnectReportSerializer, self).create(validated_data)
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         request = self.context.get("request")
+        no_permissions = False
+
         if request and hasattr(request, "user"):
             user = request.user
             validated_data["author"] = user
+        # check if user if status change
+        status_change_to = validated_data.get('status')
+        if status_change_to:
+            if status_change_to in [constants.INCIDENT_REPORT_REJECTED, constants.INCIDENT_STATUS_COMPLETE] and not request.user.is_manager:
+                no_permissions = True
+
+            if status_change_to in [constants.INCIDENT_STATUS_FOR_REVIEW] and not request.user.is_data_entrant:
+                no_permissions = True
+
+        if no_permissions:
+            raise ValidationError(
+                "You don't have permissions to perform this action"
+            )
+
         validated_data['previous_status'] = instance.status
         validated_data['previous_feedback'] = instance.feedback
         return super(KlaConnectReportSerializer, self).update(instance, validated_data)
@@ -85,20 +122,20 @@ class KlaConnectReportSerializer(serializers.ModelSerializer,
         fields = '__all__'
         extra_kwargs = {
             'type': {'write_only': True, 'required': True},
+            'status': {'write_only': True, 'required': False},
             'affected_area': {'write_only': True,
                               'required': True}
         }
         read_only_fields = ('ref',)
-        
+
     def get_views_count(self, obj):
         return obj.views.count()
-    
+
     def get_thumbs_up(self, obj):
         return obj.likes.filter(thumbs_up=True).count()
-    
+
     def get_thumbs_down(self, obj):
         return obj.likes.filter(thumbs_up=False).count()
-    
 
 
 class CustomNotificationSerializer(serializers.ModelSerializer):
@@ -121,17 +158,17 @@ class CustomNotificationSerializer(serializers.ModelSerializer):
             'actor_content_type',
             'target_object_id',
             'target_content_type'
-            )
+        )
 
     def get_activity_type(self, obj):
         return get_instance_type(obj.action_object)
 
 
 def get_instance_type(instance):
-        if instance:
-            instance_class = type(instance)
-            return instance_class.__name__
-        return None
+    if instance:
+        instance_class = type(instance)
+        return instance_class.__name__
+    return None
 
 
 class ReportLikeSerializer(serializers.ModelSerializer):

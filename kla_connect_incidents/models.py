@@ -111,6 +111,10 @@ class KlaConnectIncident(TimeStampModel, ChangeNotifyModel):
     @property
     def priority_display(self):
         return self.get_priority_display()
+    
+    @property
+    def status_display(self):
+        return self.get_status_display()
 
 
 class KlaConnectReport(TimeStampModel, ChangeNotifyModel):
@@ -148,6 +152,10 @@ class KlaConnectReport(TimeStampModel, ChangeNotifyModel):
     @staticmethod
     def has_write_permission(request):
         return (not request.user.is_citizen)
+    
+    @property
+    def status_display(self):
+        return self.get_status_display()
 
 
 class ReportView(TimeStampModel):
