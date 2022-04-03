@@ -15,15 +15,18 @@ class KlaConnectLanguageWordSerializer(serializers.ModelSerializer):
             instance.key: instance.word
         }
 
+
 class DesignationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Designation
         fields = '__all__'
-        
+
+
 class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
         fields = '__all__'
+
 
 class DetailLanguageSerializer(SimpleKlaConnectLanguage):
     words = KlaConnectLanguageWordSerializer(
@@ -59,21 +62,22 @@ class KlaConnectUserProfileSerializer(NestedModelSerializer):
 
     def validate(self, attrs):
         attrs = super(KlaConnectUserProfileSerializer, self).validate(attrs)
-        nationality_value = attrs.get("nationality")
-        if nationality_value == NATIONALITY_UG:
-            if not attrs.get("nin"):
-                raise serializers.ValidationError(
-                    {"nin": "nin is required for Ugandans"}, "required")
-        else:
-            if not attrs.get("id_type"):
-                raise serializers.ValidationError(
-                    {"id_type": "id_type is required for non Ugandans"}, "required")
+        if not attrs.get("designation"):
+            nationality_value = attrs.get("nationality")
+            if nationality_value == NATIONALITY_UG:
+                if not attrs.get("nin"):
+                    raise serializers.ValidationError(
+                        {"nin": "nin is required for Ugandans"}, "required")
+            else:
+                if not attrs.get("id_type"):
+                    raise serializers.ValidationError(
+                        {"id_type": "id_type is required for non Ugandans"}, "required")
 
-            if not attrs.get("id_number"):
-                raise serializers.ValidationError(
-                    {"id_number": "id_number is required for non Ugandans"}, "required")
+                if not attrs.get("id_number"):
+                    raise serializers.ValidationError(
+                        {"id_number": "id_number is required for non Ugandans"}, "required")
 
-        return attrs
+            return attrs
 
 
 class KlaConnectVerifyProfileSerializer(serializers.Serializer):
