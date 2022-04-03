@@ -77,7 +77,7 @@ class KlaConnectUserProfileSerializer(NestedModelSerializer):
                     raise serializers.ValidationError(
                         {"id_number": "id_number is required for non Ugandans"}, "required")
 
-            return attrs
+        return attrs
 
 
 class KlaConnectVerifyProfileSerializer(serializers.Serializer):

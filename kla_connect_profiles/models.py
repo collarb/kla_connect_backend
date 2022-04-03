@@ -34,7 +34,7 @@ class KlaConnectUserProfile(TimeStampModel):
     user = models.OneToOneField(
         get_user_model(), on_delete=models.CASCADE, related_name="userprofile")
     nationality = models.IntegerField(
-        choices=NATIONALITY_CHOICES, blank=False, null=False)
+        choices=NATIONALITY_CHOICES, blank=True, null=True)
     nin = models.CharField(max_length=NIN_FIELD_LENGTH, blank=True)
     mobile_number = models.CharField(
         max_length=15, blank=False, null=False, unique=True)
