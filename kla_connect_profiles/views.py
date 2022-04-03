@@ -1,7 +1,8 @@
 from rest_framework.mixins import RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, ListModelMixin
 from rest_framework.viewsets import GenericViewSet
 from kla_connect_profiles.serializers import KlaConnectUserProfileSerializer, KlaConnectUserProfile, \
-    KlaConnectVerifyProfileSerializer, SimpleKlaConnectLanguage, DetailLanguageSerializer
+    KlaConnectVerifyProfileSerializer, SimpleKlaConnectLanguage, DetailLanguageSerializer, \
+        DesignationSerializer, DepartmentSerializer, Designation, Department
 from kla_connect_profiles.models import ProfileValidation, KlaConnectLanguage
 from dry_rest_permissions.generics import DRYPermissions
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -23,6 +24,16 @@ class LanguageViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     def retrieve(self, request, *args, **kwargs):
         self.serializer_class = DetailLanguageSerializer
         return super(LanguageViewSet,self).retrieve(request,*args,**kwargs)
+
+class DesignationViewSet(ListModelMixin, GenericViewSet):
+    serializer_class = DesignationSerializer
+    queryset = Designation.objects.all()
+    permission_classes = (AllowAny,)
+    
+class DepartmentViewSet(ListModelMixin, GenericViewSet):
+    serializer_class = DepartmentSerializer
+    queryset = Department.objects.all()
+    permission_classes = (AllowAny,)
 
 
 class ProfileViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericViewSet):

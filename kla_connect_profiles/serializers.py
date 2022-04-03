@@ -1,6 +1,6 @@
 from kla_connect_utils.serializers import SimpleUserSerializer, KlaConnectUserProfile, \
     serializers, NestedModelSerializer, SimpleKlaConnectLanguage
-from kla_connect_profiles.models import KlaConnectLanguageWord
+from kla_connect_profiles.models import KlaConnectLanguageWord, Department, Designation
 from kla_connect_utils.validators import CustomUniqueValidator
 from kla_connect_utils.constants import NATIONALITY_UG
 
@@ -15,6 +15,15 @@ class KlaConnectLanguageWordSerializer(serializers.ModelSerializer):
             instance.key: instance.word
         }
 
+class DesignationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Designation
+        fields = '__all__'
+        
+class DepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = '__all__'
 
 class DetailLanguageSerializer(SimpleKlaConnectLanguage):
     words = KlaConnectLanguageWordSerializer(
