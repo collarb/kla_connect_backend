@@ -102,10 +102,15 @@ class KlaConnectReportSerializer(serializers.ModelSerializer,
         # check if user if status change
         status_change_to = validated_data.get('status')
         if status_change_to:
-            if status_change_to in [constants.INCIDENT_REPORT_REJECTED, constants.INCIDENT_STATUS_COMPLETE] and not request.user.is_manager:
+            if status_change_to in [constants.INCIDENT_REPORT_REJECTED, constants.INCIDENT_STATUS_COMPLETE] and not (request.user.is_manager or request.user.is_ddt):
                 no_permissions = True
 
-            if status_change_to in [constants.INCIDENT_STATUS_FOR_REVIEW] and not request.user.is_data_entrant:
+            if status_change_to in [constants.INCIDENT_STATUS_FOR_REVIEW] and request.user.is_citizen:
+                no_permissions = True
+                
+        publishing = validated_data.get('published')
+        if publishing:
+            if not (request.user.is_manager or request.user.is_ddt):
                 no_permissions = True
 
         if no_permissions:
