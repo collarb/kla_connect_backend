@@ -42,7 +42,7 @@ class DetailLanguageSerializer(SimpleKlaConnectLanguage):
         return data
 
 
-class KlaConnectUserProfileSerializer(NestedModelSerializer):
+class KlaConnectUserProfileSerializer(serializers.ModelSerializer):
 
     user = SimpleUserSerializer
 
