@@ -107,7 +107,7 @@ class KlaConnectReportSerializer(serializers.ModelSerializer,
 
             if status_change_to in [constants.INCIDENT_STATUS_FOR_REVIEW] and request.user.is_citizen:
                 no_permissions = True
-                
+
         publishing = validated_data.get('published')
         if publishing:
             if not (request.user.is_manager or request.user.is_ddt):
@@ -120,6 +120,7 @@ class KlaConnectReportSerializer(serializers.ModelSerializer,
 
         validated_data['previous_status'] = instance.status
         validated_data['previous_feedback'] = instance.feedback
+        validated_data['publishing'] = publishing
         return super(KlaConnectReportSerializer, self).update(instance, validated_data)
 
     class Meta:

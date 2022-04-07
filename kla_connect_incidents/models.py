@@ -1,7 +1,8 @@
 from kla_connect_utils.models import TimeStampModel, models
 from django.contrib.auth import get_user_model
 from kla_connect_utils.constants import EMERGENCY_CHOICES, INCIDENT_STATUS_PENDING, \
-    INCIDENT_STATUS_COMPLETE, INCIDENT_STATUS_CHOICES, INCIDENT_REPORT_STATUS_CHOICES
+    INCIDENT_STATUS_COMPLETE, INCIDENT_STATUS_CHOICES, INCIDENT_REPORT_STATUS_CHOICES, \
+    DATA_ENTRANT, MANAGER_TRANSPORT, DEPUTY_DIRECTOR_TRANSPORT
 from kla_connect_utils import helpers
 from dry_rest_permissions.generics import allow_staff_or_superuser
 from kla_connect_location.models import Area
@@ -79,7 +80,7 @@ class KlaConnectIncident(TimeStampModel, ChangeNotifyModel):
         choices=EMERGENCY_CHOICES, null=False, blank=False)
     subject = models.TextField(null=False, blank=True)
     description = models.TextField(null=False, blank=False)
-    attachment = ResizedImageField(size=[500, 300],quality=75,upload_to='attachments/incidents/%Y/%m/%d', blank=True,
+    attachment = ResizedImageField(size=[500, 300], quality=75, upload_to='attachments/incidents/%Y/%m/%d', blank=True,
                                    null=True)
     ref = models.CharField(max_length=20, blank=False, null=False,
                            default=helpers.generate_ref_number, unique=True)
@@ -98,7 +99,7 @@ class KlaConnectIncident(TimeStampModel, ChangeNotifyModel):
 
     @allow_staff_or_superuser
     def has_object_read_permission(self, request):
-        return request.user == self.user
+        return request.user == self.user or self.status == INCIDENT_STATUS_COMPLETE
 
     def has_object_write_permission(self, request):
         return (request.user == self.user or not request.user.is_citizen) and \
@@ -111,7 +112,7 @@ class KlaConnectIncident(TimeStampModel, ChangeNotifyModel):
     @property
     def priority_display(self):
         return self.get_priority_display()
-    
+
     @property
     def status_display(self):
         return self.get_status_display()
@@ -128,7 +129,7 @@ class KlaConnectReport(TimeStampModel, ChangeNotifyModel):
     title = models.CharField(max_length=225, null=False, blank=True)
     description = models.TextField(null=False, blank=False)
     attachment = models.FileField(upload_to='attachments/reports/%Y/%m/%d', blank=True,
-                                   null=True)
+                                  null=True)
     ref = models.CharField(max_length=20, blank=False, null=False,
                            default=helpers.generate_rep_ref_number, unique=True)
 
@@ -136,6 +137,8 @@ class KlaConnectReport(TimeStampModel, ChangeNotifyModel):
     status = models.CharField(
         max_length=25, default=INCIDENT_STATUS_PENDING, choices=INCIDENT_REPORT_STATUS_CHOICES)
     published = models.BooleanField(default=False)
+
+    publishing = None
 
     def __str__(self):
         return "{}|{}".format(self.title, self.type)
@@ -145,15 +148,18 @@ class KlaConnectReport(TimeStampModel, ChangeNotifyModel):
         return True
 
     def has_object_read_permission(self, request):
-        return True
+        return not request.user.is_citizen or self.published
 
     def has_object_write_permission(self, request):
-        return not request.user.is_citizen and self.status != INCIDENT_STATUS_COMPLETE
+        if self.published or self.status == INCIDENT_STATUS_COMPLETE:
+            return request.user.role in [MANAGER_TRANSPORT, DEPUTY_DIRECTOR_TRANSPORT]
+        else:
+            return not request.user.is_citizen
 
     @staticmethod
     def has_write_permission(request):
         return (not request.user.is_citizen)
-    
+
     @property
     def status_display(self):
         return self.get_status_display()

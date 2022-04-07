@@ -20,7 +20,7 @@ def handle_incident_update(sender, instance, created, **kwargs):
                 action_object=instance,
                 description="Added feedback to incident",
                 public=False,
-                author=instance.author.full_name,
+                author=instance.author.full_name if instance.author else "System Activity",
                 previous_feedback=instance.previous_feedback,
                 current_feedback=instance.feedback
             )
@@ -36,11 +36,10 @@ def handle_incident_update(sender, instance, created, **kwargs):
                 level="success",
                 description="Approved Incident",
                 public=False,
-                author=instance.author.full_name,
+                author=instance.author.full_name if instance.author else "System Activity",
                 previous_status=instance.previous_status,
                 current_status=instance.status
             )
-
             # alert all citiziens except creator
             notify.send(
                 instance.author,
@@ -118,7 +117,8 @@ def handle_report_update(sender, instance, created, **kwargs):
                 previous_status=instance.previous_status,
                 current_status=instance.status
             )
-
+        
+        if instance.publishing:
             # alert all citiziens
             notify.send(
                 instance.author,
