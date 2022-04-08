@@ -57,8 +57,9 @@ class ProfileViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, Ge
         """
             verify user profile
         """
+        format = request.GET.get("format")
         verification_data = {}
-        if request.method=='post':
+        if request.method=='POST':
             verification_data = request.data
         else:
             verification_data = request.GET
