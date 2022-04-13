@@ -53,7 +53,7 @@ def handle_incident_update(sender, instance, created, **kwargs):
                 description="Reported Incident"
             )
 
-        if not (completed and feedbackchanged):
+        if not (completed or feedbackchanged):
             notify.send(
                 instance.author,
                 recipient=instance.user,
@@ -147,7 +147,7 @@ def handle_report_update(sender, instance, created, **kwargs):
             )
 
         else:
-            if not (feedbackchanged and forwarded_for_review and rejected_report and completed):
+            if not (feedbackchanged or forwarded_for_review or rejected_report or completed):
                 notify.send(
                     instance.user,
                     recipient=instance.user,

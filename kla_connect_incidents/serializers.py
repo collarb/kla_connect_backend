@@ -23,8 +23,40 @@ class KlaConnectReportTypeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class KlaConnectLocationAnnotatedSerializer(object):
+
+    villlage = serializers.SerializerMethodField()
+    parish = serializers.SerializerMethodField()
+    division = serializers.SerializerMethodField()
+
+    def get_village(self, obj):
+        village = None
+        street = obj.affected_area
+        if street:
+            village = SimplAreaSerializer(street.parent).data
+
+        return village
+
+    def get_parish(self, obj):
+        parish = None
+        village = self.get_village(obj)
+        if village:
+            parish = SimplAreaSerializer(village.parent).data
+
+        return parish
+
+    def get_division(self, obj):
+        division = None
+        parish = self.get_parish(obj)
+        if parish:
+            division = SimplAreaSerializer(parish.parent).data
+
+        return division
+
+
 class KlaConnectIncidentSerializer(serializers.ModelSerializer,
-                                   GetCurrentUserAnnotatedSerializerMixin):
+                                   GetCurrentUserAnnotatedSerializerMixin,
+                                   KlaConnectLocationAnnotatedSerializer):
 
     type_display = KlaConnectIncidentTypeSerializer(
         source='type', read_only=True)
@@ -75,7 +107,8 @@ class KlaConnectIncidentSerializer(serializers.ModelSerializer,
 
 
 class KlaConnectReportSerializer(serializers.ModelSerializer,
-                                 GetCurrentUserAnnotatedSerializerMixin):
+                                 GetCurrentUserAnnotatedSerializerMixin,
+                                 KlaConnectLocationAnnotatedSerializer):
 
     type_display = KlaConnectIncidentTypeSerializer(
         source='type', read_only=True)
