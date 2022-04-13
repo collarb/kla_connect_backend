@@ -23,9 +23,9 @@ class KlaConnectReportTypeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class KlaConnectLocationAnnotatedSerializer(object):
+class KlaConnectLocationAnnotatedSerializer(serializers.Serializer):
 
-    villlage = serializers.SerializerMethodField()
+    village = serializers.SerializerMethodField()
     parish = serializers.SerializerMethodField()
     division = serializers.SerializerMethodField()
 
