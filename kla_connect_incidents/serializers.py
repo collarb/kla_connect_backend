@@ -29,27 +29,34 @@ class KlaConnectLocationAnnotatedSerializer(serializers.Serializer):
     parish = serializers.SerializerMethodField()
     division = serializers.SerializerMethodField()
 
-    def get_village(self, obj):
+    def get_village(self, obj, serialized=True):
         village = None
         street = obj.affected_area
         if street:
-            village = SimplAreaSerializer(street.parent).data
+            village = street.parent
+            if serialized:
+                village = SimplAreaSerializer(street.parent).data
 
         return village
 
-    def get_parish(self, obj):
+    def get_parish(self, obj, serialized=True):
         parish = None
-        village = self.get_village(obj)
+        village = self.get_village(obj, serialized=False)
         if village:
-            parish = SimplAreaSerializer(village.parent).data
+            parish = village.parent
+            if serialized:
+                parish = SimplAreaSerializer(
+                    village.parent).data if village.parent else None
 
         return parish
 
-    def get_division(self, obj):
+    def get_division(self, obj, serialized=True):
         division = None
-        parish = self.get_parish(obj)
+        parish = self.get_parish(obj, serialized=False)
         if parish:
-            division = SimplAreaSerializer(parish.parent).data
+            if serialized:
+                division = SimplAreaSerializer(
+                    parish.parent).data if parish.parent else None
 
         return division
 
