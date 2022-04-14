@@ -26,7 +26,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from kla_connect_location.views import LocationViewSet, LocationDetailViewSet
 from kla_connect_incidents.views import IncidentTypeViewSet, IncidentViewSet, ReportTypeViewSet, ReportViewSet,\
     ReportLikeViewSet
-from kla_connect_utils.views import NotificationsViewSet
+from kla_connect_utils.views import NotificationsViewSet, DashboardView
 from django.conf import settings
 from notifications import urls as notify_urls
 
@@ -66,6 +66,7 @@ urlpatterns = [
          name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/account/me', UserDetailsView.as_view(), name="user-details"),
+    path('api/dashboard/me', DashboardView.as_view(), name="user-dashboard"),
     path('api/profile/verified/', profile_verified, name="profile_validated"),
     path('api/', include(router.urls)),
 

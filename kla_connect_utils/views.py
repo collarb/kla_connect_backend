@@ -1,11 +1,26 @@
-from rest_framework.viewsets import GenericViewSet
-from rest_framework.mixins import ListModelMixin
-from kla_connect_incidents.serializers import CustomNotificationSerializer, CustomNotification
-from rest_framework.permissions import IsAuthenticated
-from kla_connect_utils.filterbackends import DEFAULT_FILTER_BACKENDS, NotificationsFilterBackend
-from rest_framework.decorators import action
-from rest_framework.response import Response
+from datetime import date, datetime
+
+from django.contrib.auth import get_user_model
+from django.db.models import Count
+from django.db.models.functions import TruncDate
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_headers
 from dry_rest_permissions.generics import DRYPermissions
+from kla_connect_incidents.serializers import (CustomNotification,
+                                               CustomNotificationSerializer,
+                                               KlaConnectIncident,
+                                               KlaConnectReport)
+from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
+from rest_framework.mixins import ListModelMixin
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.viewsets import GenericViewSet
+
+from kla_connect_utils.filterbackends import (DEFAULT_FILTER_BACKENDS,
+                                              NotificationsFilterBackend)
 
 
 class NotificationsViewSet(ListModelMixin, GenericViewSet):
@@ -60,3 +75,66 @@ class NotificationsViewSet(ListModelMixin, GenericViewSet):
         queryset_count = self.filter_queryset(
             self.get_queryset()).filter(unread=True).count()
         return Response({"count": queryset_count}, status=200)
+
+
+class DashboardView(APIView):
+
+    permission_classes = [IsAuthenticated]
+    
+    @method_decorator(cache_page(10*60))
+    @method_decorator(vary_on_headers("Authorization",))
+    def get(self, request, format=None):
+        try:
+            today = date.today()
+            date_format = "%d-%m-%Y"
+            filter_end = request.GET.get('end') or today
+            filter_start = request.GET.get('start') or today.replace(day=1)
+
+            if not isinstance(filter_end, date):
+                filter_end = datetime.strptime(filter_end, date_format).date()
+
+            if not isinstance(filter_start, date):
+                filter_start = datetime.strptime(
+                    filter_start, date_format).date()
+
+            response_data = {**self.get_summary_data(filter_start, filter_end),
+                             'users': self.get_users_count(filter_start, filter_end),
+                             'period': "{} - {}".format(filter_start.strftime('%B %d %Y'), filter_end.strftime('%B %d %Y'))
+                             }
+            return Response(response_data)
+        except Exception as e:
+            raise ValidationError(str(e))
+
+    def get_users_count(self, start, end):
+        return get_user_model().objects.filter(date_joined__date__range=[start, end]).count()
+
+    def get_summary_data(self, start, end):
+        incidents_summary = KlaConnectIncident.objects.filter(created_on__date__range=[start, end]).annotate(
+            date=TruncDate('created_on')).values('date').annotate(count=Count('date')).order_by()
+
+        reports_summary = KlaConnectReport.objects.filter(created_on__date__range=[start, end]).annotate(
+            date=TruncDate('created_on')).values('date').annotate(count=Count('date')).order_by()
+
+        incidents_summary_dates = incidents_summary.values_list(
+            "date", flat=True)
+        reports_summary_dates = reports_summary.values_list("date", flat=True)
+        list(incidents_summary_dates).extend(list(reports_summary_dates))
+        dates = set(incidents_summary_dates)
+        data = [[], []]
+        incidents_count = incidents_summary.count()
+        reports_count = reports_summary.count()
+        for filter_date in dates:
+            incident_reported = incidents_summary.filter(
+                date=filter_date).first()
+            value = 0
+            if incident_reported:
+                value = incident_reported.count
+            data[0].append(value)
+
+            report = reports_summary.filter(date=filter_date).first()
+            report_value = 0
+            if report:
+                report_value = report.count
+            data[1].append(report_value)
+
+        return {'incidents': incidents_count, 'reports': reports_count, 'summary_chart': data}
