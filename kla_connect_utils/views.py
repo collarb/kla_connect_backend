@@ -137,4 +137,4 @@ class DashboardView(APIView):
                 report_value = report.get('count')
             data[1].append(report_value)
 
-        return {'incidents': incidents_count, 'reports': reports_count, 'summary_chart': data}
+        return {'incidents': incidents_count, 'reports': reports_count, 'summary_chart': data,'labels':dates}
