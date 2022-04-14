@@ -128,13 +128,13 @@ class DashboardView(APIView):
                 date=filter_date).first()
             value = 0
             if incident_reported:
-                value = incident_reported.count
+                value = incident_reported.get('count')
             data[0].append(value)
 
             report = reports_summary.filter(date=filter_date).first()
             report_value = 0
             if report:
-                report_value = report.count
+                report_value = report.get('count')
             data[1].append(report_value)
 
         return {'incidents': incidents_count, 'reports': reports_count, 'summary_chart': data}
