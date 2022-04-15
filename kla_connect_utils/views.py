@@ -121,25 +121,26 @@ class DashboardView(APIView):
         incidents_summary_dates = incidents_summary.values_list(
             "date", flat=True)
         reports_summary_dates = reports_summary.values_list("date", flat=True)
-        list(incidents_summary_dates).extend(list(reports_summary_dates))
-        dates = incidents_summary_dates
+        incidents_summary_dates_list = list(incidents_summary_dates)
+        incidents_summary_dates_list.extend(list(reports_summary_dates))
+        incidents_summary_dates_list = set(incidents_summary_dates_list)
         data = [[], []]
         incidents_count = 0
         reports_count = 0
-        for filter_date in dates:
+        for filter_date in incidents_summary_dates_list:
             incident_reported = incidents_summary.filter(
                 date=filter_date).first()
             value = 0
             if incident_reported:
-                value = incident_reported.get('count')
+                value = incident_reported.count
             data[0].append(value)
             incidents_count += value
 
             report = reports_summary.filter(date=filter_date).first()
             report_value = 0
             if report:
-                report_value = report.get('count')
+                report_value = report.count
             data[1].append(report_value)
             reports_count += report_value
 
-        return {'incidents': incidents_count, 'reports': reports_count, 'summary_chart': data, 'labels': dates, 'reports_dates':reports_summary_dates}
+        return {'incidents': incidents_count, 'reports': reports_count, 'summary_chart': data, 'labels': dates, 'reports_dates': reports_summary_dates}
