@@ -82,8 +82,8 @@ class DashboardView(APIView):
 
     permission_classes = [IsAuthenticated]
 
-    @method_decorator(cache_page(10*60))
-    @method_decorator(vary_on_headers("Authorization",))
+    # @method_decorator(cache_page(10*60))
+    # @method_decorator(vary_on_headers("Authorization",))
     def get(self, request, format=None):
         try:
             today = date.today()
