@@ -88,8 +88,10 @@ class DashboardView(APIView):
         try:
             today = date.today()
             date_format = "%d-%m-%Y"
-            filter_end = request.GET.get('end') or today
-            filter_start = request.GET.get('start') or today.replace(day=1)
+            filter_end = request.GET.get(
+                'end') if request.GET.get('end') else today
+            filter_start = request.GET.get('start') if request.GET.get(
+                'start') else today.replace(day=1)
 
             if not isinstance(filter_end, date):
                 filter_end = datetime.strptime(filter_end, date_format).date()
@@ -120,7 +122,7 @@ class DashboardView(APIView):
             "date", flat=True)
         reports_summary_dates = reports_summary.values_list("date", flat=True)
         list(incidents_summary_dates).extend(list(reports_summary_dates))
-        dates = set(incidents_summary_dates)
+        dates = incidents_summary_dates
         data = [[], []]
         incidents_count = 0
         reports_count = 0
@@ -140,4 +142,4 @@ class DashboardView(APIView):
             data[1].append(report_value)
             reports_count += report_value
 
-        return {'incidents': incidents_count, 'reports': reports_count, 'summary_chart': data, 'labels': dates}
+        return {'incidents': incidents_count, 'reports': reports_count, 'summary_chart': data, 'labels': dates, 'reports_dates':reports_summary_dates}
