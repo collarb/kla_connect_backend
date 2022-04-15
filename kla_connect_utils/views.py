@@ -110,10 +110,10 @@ class DashboardView(APIView):
         return get_user_model().objects.filter(role=CITIZEN_USER, date_joined__date__range=[start, end]).count()
 
     def get_summary_data(self, start, end):
-        incidents_summary = KlaConnectIncident.objects.filter(status=INCIDENT_STATUS_COMPLETE, created_on__date__range=[start, end]).annotate(
+        incidents_summary = KlaConnectIncident.objects.filter(created_on__date__range=[start, end]).annotate(
             date=TruncDate('created_on')).values('date').annotate(count=Count('id')).order_by()
 
-        reports_summary = KlaConnectReport.objects.filter(published=True, created_on__date__range=[start, end]).annotate(
+        reports_summary = KlaConnectReport.objects.filter(created_on__date__range=[start, end]).annotate(
             date=TruncDate('created_on')).values('date').annotate(count=Count('id')).order_by()
 
         incidents_summary_dates = incidents_summary.values_list(
