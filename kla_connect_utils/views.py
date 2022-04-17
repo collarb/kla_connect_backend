@@ -126,6 +126,7 @@ class DashboardView(APIView):
         incidents_summary_dates_list.extend(list(reports_summary_dates))
         incidents_summary_dates_list = set(incidents_summary_dates_list)
         data = [[], []]
+        incidents_count = reports_count = 0
         for filter_date in incidents_summary_dates_list:
 
             incident_reported = [
