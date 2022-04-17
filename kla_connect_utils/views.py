@@ -129,18 +129,18 @@ class DashboardView(APIView):
         for filter_date in incidents_summary_dates_list:
 
             incident_reported = [
-                inc_reported for inc_reported in incidents_summary if inc_reported.date == filter_date]
+                inc_reported for inc_reported in incidents_summary if inc_reported['date'] == filter_date]
             value = 0
             if len(incident_reported) > 0:
-                value = incident_reported[0].count
+                value = incident_reported[0]['count']
             data[0].append(value)
             incidents_count += value
 
             report = [
-                rep for rep in reports_summary if rep.date == filter_date]
+                rep for rep in reports_summary if rep['date'] == filter_date]
             report_value = 0
             if len(report) > 0:
-                report_value = report.count
+                report_value = report[0]['count']
             data[1].append(report_value)
             reports_count += report_value
 
