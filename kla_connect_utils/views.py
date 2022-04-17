@@ -82,8 +82,8 @@ class DashboardView(APIView):
 
     permission_classes = [IsAuthenticated]
 
-    @method_decorator(cache_page(10*60))
-    @method_decorator(vary_on_headers("Authorization",))
+    # @method_decorator(cache_page(10*60))
+    # @method_decorator(vary_on_headers("Authorization",))
     def get(self, request, format=None):
         try:
             today = date.today()
@@ -129,7 +129,7 @@ class DashboardView(APIView):
         for filter_date in incidents_summary_dates_list:
 
             incident_reported = [
-                incident_reported for incindent_reported in incidents_summary if incident_reported.date == filter_date]
+                inc_reported for inc_reported in incidents_summary if inc_reported.date == filter_date]
             value = 0
             if len(incident_reported) > 0:
                 value = incident_reported[0].count
@@ -137,7 +137,7 @@ class DashboardView(APIView):
             incidents_count += value
 
             report = [
-                report for report in reports_summary if report.date == filter_date]
+                rep for rep in reports_summary if rep.date == filter_date]
             report_value = 0
             if len(report) > 0:
                 report_value = report.count
