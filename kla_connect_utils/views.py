@@ -82,8 +82,8 @@ class DashboardView(APIView):
 
     permission_classes = [IsAuthenticated]
 
-    # @method_decorator(cache_page(10*60))
-    # @method_decorator(vary_on_headers("Authorization",))
+    @method_decorator(cache_page(10*60))
+    @method_decorator(vary_on_headers("Authorization",))
     def get(self, request, format=None):
         try:
             today = date.today()
@@ -121,24 +121,25 @@ class DashboardView(APIView):
         incidents_summary_dates = incidents_summary.values_list(
             "date", flat=True)
         reports_summary_dates = reports_summary.values_list("date", flat=True)
+
         incidents_summary_dates_list = list(incidents_summary_dates)
         incidents_summary_dates_list.extend(list(reports_summary_dates))
         incidents_summary_dates_list = set(incidents_summary_dates_list)
         data = [[], []]
-        incidents_count = 0
-        reports_count = 0
         for filter_date in incidents_summary_dates_list:
-            incident_reported = incidents_summary.filter(
-                date=filter_date).first()
+
+            incident_reported = [
+                incident_reported for incindent_reported in incidents_summary if incident_reported.date == filter_date]
             value = 0
-            if incident_reported:
-                value = incident_reported.count
+            if len(incident_reported) > 0:
+                value = incident_reported[0].count
             data[0].append(value)
             incidents_count += value
 
-            report = reports_summary.filter(date=filter_date).first()
+            report = [
+                report for report in reports_summary if report.date == filter_date]
             report_value = 0
-            if report:
+            if len(report) > 0:
                 report_value = report.count
             data[1].append(report_value)
             reports_count += report_value
