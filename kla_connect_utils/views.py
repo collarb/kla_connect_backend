@@ -145,4 +145,4 @@ class DashboardView(APIView):
             data[1].append(report_value)
             reports_count += report_value
 
-        return {'incidents': incidents_count, 'reports': reports_count, 'summary_chart': data, 'labels': dates, 'reports_dates': reports_summary_dates}
+        return {'incidents': incidents_count, 'reports': reports_count, 'summary_chart': data, 'labels': incidents_summary_dates_list, 'reports_dates': reports_summary_dates}
