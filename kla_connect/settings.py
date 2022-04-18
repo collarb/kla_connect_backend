@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'notifications',
+    'django_filters',
 
     # local
     'kla_connect_auth',
