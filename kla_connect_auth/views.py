@@ -60,8 +60,7 @@ class UserView(ListModelMixin, RetrieveModelMixin,
     serializer_class = KlaConnectUpdateUserSerializer
     queryset = KlaConnectUser.objects.filter(deleted=False)
     filter_backends = DEFAULT_FILTER_BACKENDS
-    filterset_fields = ["is_citizen", "is_data_entrant",
-                        "is_manager", "is_ddt", "gender"]
+    filterset_fields = ["role", "gender"]
     search_fields = ["username", "last_name", "first_name", "email",
                      "userprofile__mobile_number", "userprofile__nin"]
 
