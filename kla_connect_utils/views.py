@@ -82,8 +82,8 @@ class DashboardView(APIView):
 
     permission_classes = [IsAuthenticated]
 
-    # @method_decorator(cache_page(10*60))
-    # @method_decorator(vary_on_headers("Authorization",))
+    @method_decorator(cache_page(10*60))
+    @method_decorator(vary_on_headers("Authorization",))
     def get(self, request, format=None):
         try:
             today = date.today()
@@ -111,11 +111,11 @@ class DashboardView(APIView):
     def get_users_count(self, start, end):
         return get_user_model().objects.filter(role=CITIZEN_USER, date_joined__date__range=[start, end]).count()
 
-    def get_summary_data(self, start, end):
-        incidents_summary = KlaConnectIncident.objects.filter(created_on__date__range=[start, end]).annotate(
+    def get_summary_data(self, start, end, incidents_kwargs={}, reports_kwargs={}):
+        incidents_summary = KlaConnectIncident.objects.filter(**incidents_kwargs, created_on__date__range=[start, end]).annotate(
             date=TruncDate('created_on')).values('date').annotate(count=Count('id')).order_by()
 
-        reports_summary = KlaConnectReport.objects.filter(created_on__date__range=[start, end]).annotate(
+        reports_summary = KlaConnectReport.objects.filter(**reports_kwargs, created_on__date__range=[start, end]).annotate(
             date=TruncDate('created_on')).values('date').annotate(count=Count('id')).order_by()
 
         incidents_summary_dates = incidents_summary.values_list(
@@ -125,6 +125,8 @@ class DashboardView(APIView):
         incidents_summary_dates_list = list(incidents_summary_dates)
         incidents_summary_dates_list.extend(list(reports_summary_dates))
         incidents_summary_dates_list = set(incidents_summary_dates_list)
+        incidents_summary_dates_list = list(incidents_summary_dates_list)
+        incidents_summary_dates_list.sort()
         data = [[], []]
         incidents_count = reports_count = 0
         for filter_date in incidents_summary_dates_list:
