@@ -8,11 +8,11 @@ from rest_framework.exceptions import AuthenticationFailed
 
 
 class KlaConnectUserSerializer(SimpleUserSerializer, NestedModelSerializer):
-    profile = SimpleProfileSerializer(required=True, source="profile")
+    profile = SimpleProfileSerializer(required=True)
 
     def save_nested_profile(self, data, instance, created=False):
+        profile_data = {**data, 'user': instance.id}
         if created:
-            profile_data = {**data, 'user': instance.id}
             if profile_data.get('division'):
                 profile_data['division'] = profile_data['division'].id
             
@@ -28,6 +28,10 @@ class KlaConnectUserSerializer(SimpleUserSerializer, NestedModelSerializer):
                 profile_instance.save()
             else:
                 raise serializers.ValidationError(profile_instance.errors)
+        else:
+            serializer = KlaConnectUserProfileSerializer(instance=instance.profile, data = profile_data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
 
     @transaction.atomic
     def create(self, validated_data):

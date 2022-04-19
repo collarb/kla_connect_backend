@@ -40,11 +40,11 @@ class UserCreateView(CreateModelMixin, GenericViewSet):
             mobile_number = request.data['profile'].get('mobile_number')
             if mobile_number:
                 user_filter_kwargs |= Q(
-                    userprofile__mobile_number=mobile_number)
+                    profile__mobile_number=mobile_number)
 
         if bool(user_filter_kwargs):
             instance = self.get_queryset().filter(
-                user_filter_kwargs, userprofile__verified=False).first()
+                user_filter_kwargs, profile__verified=False).first()
             if instance:
                 instance.delete()
 
