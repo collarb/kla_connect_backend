@@ -62,7 +62,7 @@ class UserView(ListModelMixin, RetrieveModelMixin,
     filter_backends = DEFAULT_FILTER_BACKENDS
     filterset_fields = ["role", "gender"]
     search_fields = ["username", "last_name", "first_name", "email",
-                     "userprofile__mobile_number", "userprofile__nin"]
+                     "profile__mobile_number", "profile__nin"]
 
     def perform_destroy(self, instance):
         instance.deleted = True

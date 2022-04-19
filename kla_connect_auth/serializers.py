@@ -12,16 +12,15 @@ class KlaConnectUserSerializer(SimpleUserSerializer, NestedModelSerializer):
 
     def save_nested_profile(self, data, instance, created=False):
         profile_data = {**data, 'user': instance.id}
+        if profile_data.get('division'):
+            profile_data['division'] = profile_data['division'].id
+        
+        if profile_data.get('designation'):
+            profile_data['designation'] = profile_data['designation'].id
+        
+        if profile_data.get('department'):
+            profile_data['department'] = profile_data['department'].id
         if created:
-            if profile_data.get('division'):
-                profile_data['division'] = profile_data['division'].id
-            
-            if profile_data.get('designation'):
-                profile_data['designation'] = profile_data['designation'].id
-            
-            if profile_data.get('department'):
-                profile_data['department'] = profile_data['department'].id
-            
             profile_instance = KlaConnectUserProfileSerializer(
                 data=profile_data)
             if profile_instance.is_valid():

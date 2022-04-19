@@ -62,21 +62,20 @@ class KlaConnectUserProfileSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         attrs = super(KlaConnectUserProfileSerializer, self).validate(attrs)
-        if not self.partial:
-            if not attrs.get("designation"):
-                nationality_value = attrs.get("nationality")
-                if nationality_value == NATIONALITY_UG:
-                    if not attrs.get("nin"):
-                        raise serializers.ValidationError(
-                            {"nin": "nin is required for Ugandans"}, "required")
-                else:
-                    if not attrs.get("id_type"):
-                        raise serializers.ValidationError(
-                            {"id_type": "id_type is required for non Ugandans"}, "required")
+        if not attrs.get("designation"):
+            nationality_value = attrs.get("nationality")
+            if nationality_value == NATIONALITY_UG:
+                if not attrs.get("nin"):
+                    raise serializers.ValidationError(
+                        {"nin": "nin is required for Ugandans"}, "required")
+            else:
+                if not attrs.get("id_type"):
+                    raise serializers.ValidationError(
+                        {"id_type": "id_type is required for non Ugandans"}, "required")
 
-                    if not attrs.get("id_number"):
-                        raise serializers.ValidationError(
-                            {"id_number": "id_number is required for non Ugandans"}, "required")
+                if not attrs.get("id_number"):
+                    raise serializers.ValidationError(
+                        {"id_number": "id_number is required for non Ugandans"}, "required")
 
         return attrs
 
