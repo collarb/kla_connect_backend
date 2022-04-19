@@ -33,12 +33,12 @@ class KlaConnectUser(AbstractUser):
     def is_ddt(self):
         return self.role == DEPUTY_DIRECTOR_TRANSPORT
 
-    @property
-    def profile(self):
-        try:
-            return self.userprofile
-        except Exception:
-            return None
+    # @property
+    # def profile(self):
+    #     try:
+    #         return self.userprofile
+    #     except Exception:
+    #         return None
 
     @property
     def full_name(self):

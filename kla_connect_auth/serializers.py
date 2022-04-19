@@ -8,7 +8,7 @@ from rest_framework.exceptions import AuthenticationFailed
 
 
 class KlaConnectUserSerializer(SimpleUserSerializer, NestedModelSerializer):
-    profile = SimpleProfileSerializer(required=True)
+    profile = SimpleProfileSerializer(required=True, source="profile")
 
     def save_nested_profile(self, data, instance, created=False):
         if created:
@@ -36,7 +36,7 @@ class KlaConnectUserSerializer(SimpleUserSerializer, NestedModelSerializer):
             instance.is_staff = True
         instance.set_password(validated_data['password'])
         instance.save()
-        verification_code = instance.userprofile.profilevalidation_set.last().code
+        verification_code = instance.profile.profilevalidation_set.last().code
         message = "Verification code {} sent to {}".format(verification_code, validated_data["email"])
         return {"message":message}
     
@@ -61,11 +61,11 @@ class KlaConnectUserObtainPairSerializer(TokenObtainPairSerializer):
 
     def get_token(self, user):
         try:
-            if user.userprofile.verified:
+            if user.profile.verified:
                 token = super().get_token(user)
                 return token
             else:
                 raise AuthenticationFailed(
                     self.account_unverified_message, self.account_verification_code)
-        except KlaConnectUser.userprofile.RelatedObjectDoesNotExist:
+        except KlaConnectUser.profile.RelatedObjectDoesNotExist:
             return super().get_token(user)
