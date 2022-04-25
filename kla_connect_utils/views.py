@@ -152,7 +152,7 @@ class DashboardView(APIView):
                 rep for rep in reports_summary if rep['date'] == filter_date]
             report_value = sum([report['count'] for report in reports])
             published_reports += sum([report['count']
-                                     for report in reports if incident_reported['published']])
+                                     for report in reports if report['published']])
             data[1].append(report_value)
             reports_count += report_value
 
