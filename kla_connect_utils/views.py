@@ -93,14 +93,21 @@ class DashboardView(APIView):
             filter_start = request.GET.get('start') if request.GET.get(
                 'start') else today.replace(day=1)
 
+            filter_kwargs = {}
+            if request.GET.get('division'):
+                filter_kwargs['affected_area__parent__parent__parent__id'] = request.GET.get(
+                    'division')
+
+            # if request.GET.get('status'):
+            #     filter_kwargs['status'] =  equest.GET.get('status')
+
             if not isinstance(filter_end, date):
                 filter_end = datetime.strptime(filter_end, date_format).date()
 
             if not isinstance(filter_start, date):
                 filter_start = datetime.strptime(
                     filter_start, date_format).date()
-
-            response_data = {**self.get_summary_data(filter_start, filter_end),
+            response_data = {**self.get_summary_data(filter_start, filter_end, reports_kwargs=filter_kwargs, incidents_kwargs=filter_kwargs),
                              'users': self.get_users_count(filter_start, filter_end),
                              'period': "{} - {}".format(filter_start.strftime('%B %d %Y'), filter_end.strftime('%B %d %Y'))
                              }
@@ -113,14 +120,15 @@ class DashboardView(APIView):
 
     def get_summary_data(self, start, end, incidents_kwargs={}, reports_kwargs={}):
         incidents_summary = KlaConnectIncident.objects.filter(**incidents_kwargs, created_on__date__range=[start, end]).annotate(
-            date=TruncDate('created_on')).values('date').annotate(count=Count('id')).order_by()
+            date=TruncDate('created_on')).values('date', 'status').annotate(count=Count('id')).order_by()
 
         reports_summary = KlaConnectReport.objects.filter(**reports_kwargs, created_on__date__range=[start, end]).annotate(
-            date=TruncDate('created_on')).values('date').annotate(count=Count('id')).order_by()
+            date=TruncDate('created_on')).values('date', 'published').annotate(count=Count('id')).order_by()
 
         incidents_summary_dates = incidents_summary.values_list(
-            "date", flat=True)
-        reports_summary_dates = reports_summary.values_list("date", flat=True)
+            "date", flat=True).distinct()
+        reports_summary_dates = reports_summary.values_list(
+            "date", flat=True).distinct()
 
         incidents_summary_dates_list = list(incidents_summary_dates)
         incidents_summary_dates_list.extend(list(reports_summary_dates))
@@ -128,23 +136,32 @@ class DashboardView(APIView):
         incidents_summary_dates_list = list(incidents_summary_dates_list)
         incidents_summary_dates_list.sort()
         data = [[], []]
-        incidents_count = reports_count = 0
+        incidents_count = reports_count = approved_incidents = published_reports = 0
         for filter_date in incidents_summary_dates_list:
 
-            incident_reported = [
+            incidents_reported = [
                 inc_reported for inc_reported in incidents_summary if inc_reported['date'] == filter_date]
-            value = 0
-            if len(incident_reported) > 0:
-                value = incident_reported[0]['count']
+            value = sum([incident_reported['count']
+                        for incident_reported in incidents_reported])
+            approved_incidents += sum([incident_reported['count']
+                                       for incident_reported in incidents_reported if incident_reported['status'] == INCIDENT_STATUS_COMPLETE])
             data[0].append(value)
             incidents_count += value
 
-            report = [
+            reports = [
                 rep for rep in reports_summary if rep['date'] == filter_date]
-            report_value = 0
-            if len(report) > 0:
-                report_value = report[0]['count']
+            report_value = sum([report['count'] for report in reports])
+            published_reports += sum([report['count']
+                                     for report in reports if incident_reported['published']])
             data[1].append(report_value)
             reports_count += report_value
 
-        return {'incidents': incidents_count, 'reports': reports_count, 'summary_chart': data, 'labels': incidents_summary_dates_list, 'reports_dates': reports_summary_dates}
+        incidents_summary_confirmed = KlaConnectIncident.objects.filter(
+            status=INCIDENT_STATUS_COMPLETE, created_on__date__range=[start, end]).count()
+
+        reports_summary_published = KlaConnectReport.objects.filter(**reports_kwargs, created_on__date__range=[start, end]).annotate(
+            date=TruncDate('created_on')).values('date').annotate(count=Count('id')).order_by()
+
+        return {'incidents': incidents_count, 'reports': reports_count, 'summary_chart': data,
+                'labels': incidents_summary_dates_list, 'reports_dates': reports_summary_dates,
+                'approved_incidents': approved_incidents, 'published_reports': published_reports}

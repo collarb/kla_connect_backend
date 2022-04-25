@@ -23,12 +23,16 @@ class IncidentViewSet(ModelViewSet):
     permission_classes = (IsAuthenticated, DRYPermissions)
     filter_backends = DEFAULT_FILTER_BACKENDS + \
         (KlaConnectIncidentFilterBackend,)
+    filterset_fields = ['status','priority']
+    search_fields = ['type__name', 'affected_area__name','subject', 'description']
 
 
 class ReportTypeViewSet(ModelViewSet):
     serializer_class = KlaConnectReportTypeSerializer
     queryset = KlaConnectReportType.objects.all()
     lookup_value_regex = '[-\w.]+'
+    filterset_fields = ['status','published']
+    search_fields = ['type__name', 'affected_area__name','title', 'description']
     permission_classes = (IsAuthenticated, DRYPermissions)
 
 
