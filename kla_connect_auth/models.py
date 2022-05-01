@@ -52,7 +52,11 @@ class KlaConnectUser(AbstractUser):
 class LoginAttempt(TimeStampModel):
     user = models.ForeignKey(KlaConnectUser, on_delete=models.CASCADE)
     count = models.IntegerField(blank=False, null=False)
-
+    
+    
+class PasswordResetAttempt(TimeStampModel):
+    user = models.ForeignKey(KlaConnectUser, on_delete=models.CASCADE)
+    reset_code = models.CharField(max_length=6, null=False, blank=False, unique=True)
 
 class CustomNotification(AbstractNotification):
     class Meta(AbstractNotification.Meta):

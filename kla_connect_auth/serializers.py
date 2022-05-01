@@ -1,10 +1,11 @@
-from kla_connect_auth.models import KlaConnectUser
+from kla_connect_auth.models import KlaConnectUser, PasswordResetAttempt
 from kla_connect_utils.serializers import NestedModelSerializer, \
     SimpleProfileSerializer, serializers, SimpleUserSerializer, transaction
 from kla_connect_profiles.serializers import KlaConnectUserProfileSerializer
-from kla_connect_utils.constants import CITIZEN_USER
+from kla_connect_utils.constants import CITIZEN_USER, PASSWORD_RESET_ACTION_CHOICES, PASSWORD_RESET_REQUEST_ACTION
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import AuthenticationFailed, ValidationError
+from django.db.models import Q
 
 
 class KlaConnectUserSerializer(SimpleUserSerializer, NestedModelSerializer):
@@ -72,3 +73,28 @@ class KlaConnectUserObtainPairSerializer(TokenObtainPairSerializer):
                     self.account_unverified_message, self.account_verification_code)
         except KlaConnectUser.profile.RelatedObjectDoesNotExist:
             return super().get_token(user)
+        
+class KlaConnectResetPasswordSerializer(serializers.Serializer):
+    email = serializers.CharField(required=False)
+    action = serializers.ChoiceField(choices=PASSWORD_RESET_ACTION_CHOICES,required=True)
+    reset_code = serializers.CharField(required=False)
+    new_password = serializers.CharField(required=False)
+    
+    message = None
+    
+    def validate(self, attrs):
+        attrs = super(KlaConnectResetPasswordSerializer, self).validate(attrs)
+        if attrs.get('action') == PASSWORD_RESET_REQUEST_ACTION:
+            if hasattr(attrs, "email"):
+                self.instance = KlaConnectUser.objects.filter(Q(email=attrs.get('email'))|Q(profile__mobile_number=attrs.get('email'))).first()
+                if not self.instance:
+                    raise ValidationError("Account with provided phone number or email can't be found")
+                # todo send email with reset code
+            else:
+                raise ValidationError("email", "Email or phone number should be provided")
+        else:
+            try:
+                user_to_reset = PasswordResetAttempt.objects.get(reset_code=attrs.get('reset_code'))
+                user_to_reset.setPassword(attrs.get)
+            except PasswordResetAttempt.DoesNotExist:
+                raise ValidationError("invalid reset code provided")

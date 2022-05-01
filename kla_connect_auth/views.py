@@ -4,13 +4,14 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import CreateModelMixin, \
     ListModelMixin, RetrieveModelMixin, DestroyModelMixin, UpdateModelMixin
 from kla_connect_auth.serializers import KlaConnectUserSerializer, KlaConnectUser, KlaConnectUpdateUserSerializer, \
-    KlaConnectUserObtainPairSerializer
-from rest_framework.permissions import IsAuthenticated
+    KlaConnectUserObtainPairSerializer, KlaConnectResetPasswordSerializer
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from kla_connect_utils.filterbackends import DEFAULT_FILTER_BACKENDS
 from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
 from kla_connect_profiles.models import ProfileValidation
 from django.db.models import Q
+from rest_framework.decorators import action
 
 
 class KlaConnectObtainTokenView(TokenObtainPairView):
@@ -67,7 +68,29 @@ class UserView(ListModelMixin, RetrieveModelMixin,
     def perform_destroy(self, instance):
         instance.deleted = True
         instance.save()
+    
+    @action(methods=['post'],
+            detail=False,
+            url_path="reset-password",
+            url_name="password-reset",
+            permission_classes=[AllowAny])
+    def reset_password(self, request, format=None):
+        """
+        _summary_
 
+        Args:
+            request (_type_): _description_
+            format (_type_, optional): _description_. Defaults to None.
+
+        Returns:
+            _type_: _description_
+        """
+        reset_serializer = KlaConnectResetPasswordSerializer(data=request.data)
+        reset_serializer.is_valid(raise_exception=True)
+        return Response({
+            "message": reset_serializer.validated_data.get("message")
+        }, status=status.HTTP_200_OK)
+        
 
 class UserDetailsView(APIView):
 
