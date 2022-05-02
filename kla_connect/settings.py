@@ -136,7 +136,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
+    'kla_connect_utils.authentication_backend.EmailorUsernameorPhoneBackend',
 ]
 
 # Internationalization
