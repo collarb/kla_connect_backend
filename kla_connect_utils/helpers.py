@@ -18,8 +18,7 @@ def generate_rep_ref_number():
     d1 = today.strftime("%d%m%y")
     return f'INR-{d1}-{result_str}'
 
-def generate_verification_code():
-    length = 4
+def generate_verification_code(length = 4):
     letters = string.ascii_uppercase+ string.digits
     result_str = ''.join(secrets.choice(letters) for i in range(length))
     return f'{result_str}'

@@ -73,6 +73,7 @@ class UserView(ListModelMixin, RetrieveModelMixin,
             detail=False,
             url_path="reset-password",
             url_name="password-reset",
+            serializer_class=KlaConnectResetPasswordSerializer,
             permission_classes=[AllowAny])
     def reset_password(self, request, format=None):
         """
@@ -85,10 +86,10 @@ class UserView(ListModelMixin, RetrieveModelMixin,
         Returns:
             _type_: _description_
         """
-        reset_serializer = KlaConnectResetPasswordSerializer(data=request.data)
+        reset_serializer = self.get_serializer(data=request.data)
         reset_serializer.is_valid(raise_exception=True)
         return Response({
-            "message": reset_serializer.validated_data.get("message")
+            "message": reset_serializer.message
         }, status=status.HTTP_200_OK)
         
 
