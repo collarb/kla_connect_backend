@@ -75,6 +75,8 @@ class KlaConnectIncidentSerializer(serializers.ModelSerializer,
     def create(self, validated_data):
         user = self.get_current_user()
         validated_data['user'] = user
+        if not user.is_citizen:
+            validated_data['status'] = constants.INCIDENT_STATUS_COMPLETE
         return super(KlaConnectIncidentSerializer, self).create(validated_data)
 
     def update(self, instance, validated_data):
