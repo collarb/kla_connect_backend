@@ -191,4 +191,4 @@ class ReportLike(TimeStampModel):
 
     @staticmethod
     def has_write_permission(request):
-        return request.user.is_citizen
+        return True

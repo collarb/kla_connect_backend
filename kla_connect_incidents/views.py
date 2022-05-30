@@ -48,12 +48,12 @@ class ReportViewSet(ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         user = request.user
-        if user.is_citizen:
-            try:
-                this_report = self.get_object()
+        try:
+            this_report = self.get_object()
+            if this_report.published:
                 this_report.views.create(user=user)
-            except Exception as e:
-                pass
+        except Exception as e:
+            pass
         return super(ReportViewSet, self).retrieve(request, *args, **kwargs)
 
 
