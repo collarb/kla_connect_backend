@@ -18,6 +18,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
+from django.db.models.query_utils import Q
 from kla_connect_utils.constants import CITIZEN_USER, INCIDENT_STATUS_COMPLETE
 
 from kla_connect_utils.filterbackends import (DEFAULT_FILTER_BACKENDS,
@@ -119,12 +120,16 @@ class DashboardView(APIView):
         return get_user_model().objects.filter(role=CITIZEN_USER, date_joined__date__range=[start, end]).count()
 
     def get_summary_data(self, start, end, incidents_kwargs={}, reports_kwargs={}):
+        incidents_count = reports_count = approved_incidents = published_reports = 0
         incidents_summary = KlaConnectIncident.objects.filter(**incidents_kwargs, created_on__date__range=[start, end]).annotate(
             date=TruncDate('created_on')).values('date', 'status').annotate(count=Count('id')).order_by()
-
-        reports_summary = KlaConnectReport.objects.filter(**reports_kwargs, created_on__date__range=[start, end]).annotate(
+        filtered_reports = KlaConnectReport.objects.filter(**reports_kwargs, created_on__date__range=[start, end])
+        
+        report_data = filtered_reports.aggregate(views = Count('views'), likes=Count('likes', filter=Q(likes__thumbs_up=True)))
+        
+        reports_summary = filtered_reports.annotate(
             date=TruncDate('created_on')).values('date', 'published').annotate(count=Count('id')).order_by()
-
+        
         incidents_summary_dates = incidents_summary.values_list(
             "date", flat=True).distinct()
         reports_summary_dates = reports_summary.values_list(
@@ -136,7 +141,6 @@ class DashboardView(APIView):
         incidents_summary_dates_list = list(incidents_summary_dates_list)
         incidents_summary_dates_list.sort()
         data = [[], []]
-        incidents_count = reports_count = approved_incidents = published_reports = 0
         for filter_date in incidents_summary_dates_list:
 
             incidents_reported = [
@@ -156,12 +160,6 @@ class DashboardView(APIView):
             data[1].append(report_value)
             reports_count += report_value
 
-        incidents_summary_confirmed = KlaConnectIncident.objects.filter(
-            status=INCIDENT_STATUS_COMPLETE, created_on__date__range=[start, end]).count()
-
-        reports_summary_published = KlaConnectReport.objects.filter(**reports_kwargs, created_on__date__range=[start, end]).annotate(
-            date=TruncDate('created_on')).values('date').annotate(count=Count('id')).order_by()
-
         return {'incidents': incidents_count, 'reports': reports_count, 'summary_chart': data,
                 'labels': incidents_summary_dates_list, 'reports_dates': reports_summary_dates,
-                'approved_incidents': approved_incidents, 'published_reports': published_reports}
+                'approved_incidents': approved_incidents, 'published_reports': published_reports, **report_data}
