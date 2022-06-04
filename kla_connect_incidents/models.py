@@ -187,7 +187,7 @@ class ReportLike(TimeStampModel):
         unique_together = ('user', 'report')
 
     def has_object_write_permission(self, request):
-        return False
+        return True
 
     @staticmethod
     def has_write_permission(request):
