@@ -13,7 +13,7 @@ class KlaConnectIncidentFilterBackend(DRYPermissionFiltersBase):
     def filter_list_queryset(self, request, queryset, view):
         user = request.user
         if user.is_citizen:
-            queryset = queryset.filter(user=user)
+            queryset = queryset.filter(Q(user=user) | Q(status=INCIDENT_STATUS_COMPLETE))
 
         if user.is_data_entrant:
             queryset = queryset.filter(
