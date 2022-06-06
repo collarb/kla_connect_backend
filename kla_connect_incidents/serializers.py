@@ -5,6 +5,7 @@ from kla_connect_location.serializers import SimplAreaSerializer
 from kla_connect_utils.serializers import CreateOnlyCurrentUserDefault, transaction
 from kla_connect_utils.mixins import GetCurrentUserAnnotatedSerializerMixin
 from kla_connect_utils.serializers import SimpleUserSerializer
+from kla_connect_auth.serializers import KlaConnectUserSerializer
 from kla_connect_auth.models import CustomNotification
 from generic_relations.relations import GenericRelatedField
 from kla_connect_utils import constants
@@ -70,7 +71,7 @@ class KlaConnectIncidentSerializer(serializers.ModelSerializer,
     priority_display = serializers.CharField(read_only=True)
     status_display = serializers.CharField(read_only=True)
     area = SimplAreaSerializer(source="affected_area", read_only=True)
-    user = SimpleUserSerializer(required=False, read_only=True)
+    user = KlaConnectUserSerializer(required=False, read_only=True)
 
     def create(self, validated_data):
         user = self.get_current_user()
@@ -122,7 +123,7 @@ class KlaConnectReportSerializer(serializers.ModelSerializer,
     type_display = KlaConnectIncidentTypeSerializer(
         source='type', read_only=True)
     area = SimplAreaSerializer(source="affected_area", read_only=True)
-    user = SimpleUserSerializer(required=False, read_only=True)
+    user = KlaConnectUserSerializer(required=False, read_only=True)
     views_count = serializers.SerializerMethodField()
     thumbs_up = serializers.SerializerMethodField()
     thumbs_down = serializers.SerializerMethodField()
