@@ -30,7 +30,7 @@ class IncidentViewSet(ModelViewSet):
     permission_classes = (IsAuthenticated, DRYPermissions)
     filter_backends = DEFAULT_FILTER_BACKENDS + \
         (KlaConnectIncidentFilterBackend,)
-    filterset_fields = ['status', 'priority']
+    filterset_fields = ['status', 'priority','type']
     search_fields = ['type__name',
                      'affected_area__name', 'subject', 'description']
 
@@ -40,7 +40,7 @@ class ReportViewSet(ModelViewSet):
     queryset = KlaConnectReport.objects.all()
     lookup_value_regex = '[-\w.]+'
     permission_classes = (IsAuthenticated, DRYPermissions)
-    filterset_fields = ['status', 'published']
+    filterset_fields = ['status', 'published','type']
     search_fields = ['type__name',
                      'affected_area__name', 'title', 'description']
     filter_backends = DEFAULT_FILTER_BACKENDS + \

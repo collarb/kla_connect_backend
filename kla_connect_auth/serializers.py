@@ -13,6 +13,10 @@ from kla_connect_utils.validators import PasswordResetValidators
 
 class KlaConnectUserSerializer(SimpleUserSerializer, NestedModelSerializer):
     profile = SimpleProfileSerializer(required=True)
+    incidents_count = serializers.SerializerMethodField()
+
+    def get_incidents_count(self, obj):
+        return obj.klaconnectincident_set.count()
 
     def save_nested_profile(self, data, instance, created=False):
         profile_data = {**data, 'user': instance.id}
