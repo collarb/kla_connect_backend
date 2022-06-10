@@ -12,7 +12,7 @@ DEFAULT_FILTER_BACKENDS = (filters.DjangoFilterBackend, SearchFilter)
 class KlaConnectIncidentFilterBackend(DRYPermissionFiltersBase):
     def filter_list_queryset(self, request, queryset, view):
         user = request.user
-        if request.GET.get("me", False):
+        if request.GET.get("me", False) == "true":
             queryset = queryset.filter(user=user)
 
         if user.is_citizen:
