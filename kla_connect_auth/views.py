@@ -99,6 +99,7 @@ class UserView(ListModelMixin, RetrieveModelMixin,
             url_name="visited-addresses",
             serializer_class=VisitedAddressSerializer,
             queryset=VistedAddress.objects.all(),
+            filterset_fields = [],
             permission_classes=[IsAuthenticated])
     def get_visited_addresses(self, request):
         """
