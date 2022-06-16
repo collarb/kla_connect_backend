@@ -21,7 +21,7 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from kla_connect_auth.views import UserCreateView, UserView, UserDetailsView, KlaConnectObtainTokenView
-from kla_connect_profiles.views import ProfileViewSet, profile_verified, LanguageViewSet, DesignationViewSet, DepartmentViewSet
+from kla_connect_profiles.views import ProfileViewSet, profile_verified, LanguageViewSet, DesignationViewSet, DepartmentViewSet, CreateAddressViewSet
 from rest_framework_simplejwt.views import TokenRefreshView
 from kla_connect_location.views import LocationViewSet, LocationDetailViewSet
 from kla_connect_incidents.views import IncidentTypeViewSet, IncidentViewSet, ReportTypeViewSet, ReportViewSet,\
@@ -57,6 +57,8 @@ router.register(r'report', ReportViewSet, basename='Incidents')
 router.register(r'language', LanguageViewSet, basename="Languages")
 router.register(r'notifications', NotificationsViewSet,
                 basename="Notifications")
+router.register(r'address', CreateAddressViewSet,
+                basename="Address")
 
 
 urlpatterns = [

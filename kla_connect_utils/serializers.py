@@ -1,10 +1,13 @@
 from collections import OrderedDict
 from rest_framework import serializers
-from kla_connect_profiles.models import KlaConnectUserProfile, get_user_model, KlaConnectLanguage
+from kla_connect_profiles.models import KlaConnectUserProfile, get_user_model, KlaConnectLanguage, Address, VistedAddress
 from django.db import transaction
+from kla_connect_utils.constants import ADDRESSES_CHOICES, VISTED_ADDRESS, HOME_ADDRESS, WORK_ADDRESS
+from kla_connect_utils.mixins import GetCurrentUserAnnotatedSerializerMixin
+
 
 class CreateOnlyCurrentUserDefault(serializers.CurrentUserDefault):
-    
+
     def set_context(self, serializer_field):
         self.is_update = serializer_field.parent and serializer_field.parent.instance is not None
         super(CreateOnlyCurrentUserDefault, self).set_context(serializer_field)
@@ -17,6 +20,48 @@ class CreateOnlyCurrentUserDefault(serializers.CurrentUserDefault):
         if user and user.is_authenticated:
             return user
         return None
+
+
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = '__all__'
+
+class VisitedAddressSerializer(serializers.ModelSerializer):
+    address = AddressSerializer(read_only=True)
+    
+    class Meta:
+        model = VistedAddress
+        fields = ('address',)
+    
+    def to_representation(self, instance):
+        data = super(VisitedAddressSerializer, self).to_representation(instance)
+        return data['address']
+    
+class CreateAddressSerializer(AddressSerializer,
+                              GetCurrentUserAnnotatedSerializerMixin):
+    type = serializers.ChoiceField(
+        ADDRESSES_CHOICES, default=VISTED_ADDRESS, write_only=True)
+
+    def create(self, attrs):
+        address_type = attrs.pop('type')
+        new_address = super(CreateAddressSerializer, self).create(attrs)
+        current_user = self.get_current_user()
+        try:
+            if address_type == VISTED_ADDRESS:
+                VistedAddress.objects.create(
+                    user=current_user, address=new_address)
+            elif address_type == HOME_ADDRESS:
+                user_profile = current_user.profile
+                user_profile.home_address = new_address
+                user_profile.save()
+            elif address_type == WORK_ADDRESS:
+                user_profile = current_user.profile
+                user_profile.work_address = new_address
+                user_profile.save()
+        except Exception as e:
+            raise serializers.ValidationError({"error":str(e)})
+        return new_address
 
 
 class NestedModelSerializer(serializers.ModelSerializer):
@@ -129,12 +174,15 @@ class NestedModelSerializer(serializers.ModelSerializer):
 
 
 class SimpleProfileSerializer(serializers.ModelSerializer):
+    home_address = AddressSerializer(read_only=True)
+    work_address = AddressSerializer(read_only=True)
 
     class Meta:
         model = KlaConnectUserProfile
         exclude = ('user',)
         read_only_fields = ('id', 'verified')
-        
+
+
 class SimpleUserSerializer(serializers.ModelSerializer):
 
     is_citizen = serializers.BooleanField(read_only=True)
@@ -150,15 +198,17 @@ class SimpleUserSerializer(serializers.ModelSerializer):
             'password': {'write_only': True, 'required': True},
             'role': {'write_only': True},
         }
-        exclude = ('groups', 'user_permissions', 'deleted','is_superuser')
+        exclude = ('groups', 'user_permissions', 'deleted', 'is_superuser')
         read_only_fields = ('id', 'last_login', 'date_joined', 'is_staff')
 
 
 class ProfileSerializer(serializers.ModelSerializer):
     user = SimpleUserSerializer
+
     class Meta:
         model = KlaConnectUserProfile
         read_only_fields = ('id', 'verified')
+
 
 class SimpleKlaConnectLanguage(serializers.ModelSerializer):
     class Meta:

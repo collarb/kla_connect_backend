@@ -5,6 +5,7 @@ from rest_framework.mixins import CreateModelMixin, \
     ListModelMixin, RetrieveModelMixin, DestroyModelMixin, UpdateModelMixin
 from kla_connect_auth.serializers import KlaConnectUserSerializer, KlaConnectUser, KlaConnectUpdateUserSerializer, \
     KlaConnectUserObtainPairSerializer, KlaConnectResetPasswordSerializer
+from kla_connect_utils.serializers import VisitedAddressSerializer, VistedAddress
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from kla_connect_utils.filterbackends import DEFAULT_FILTER_BACKENDS
 from rest_framework import status
@@ -68,7 +69,7 @@ class UserView(ListModelMixin, RetrieveModelMixin,
     def perform_destroy(self, instance):
         instance.deleted = True
         instance.save()
-    
+
     @action(methods=['post'],
             detail=False,
             url_path="reset-password",
@@ -91,7 +92,29 @@ class UserView(ListModelMixin, RetrieveModelMixin,
         return Response({
             "message": reset_serializer.message
         }, status=status.HTTP_200_OK)
-        
+
+    @action(methods=['get'],
+            detail=False,
+            url_path="visited_places",
+            url_name="visited-addresses",
+            serializer_class=VisitedAddressSerializer,
+            queryset=VistedAddress.objects.all(),
+            permission_classes=[IsAuthenticated])
+    def get_visited_addresses(self, request):
+        """
+        returns a list of user's visted addresses
+
+        Args:
+            request (_type_): _description_
+            format (_type_, optional): _description_. Defaults to None.
+
+        Returns:
+            Addresses: List Of Address
+        """
+        addresses_serializer = self.get_serializer(
+            request.user.visted_places, many=True)
+        return Response({'places':addresses_serializer.data}, status=status.HTTP_200_OK)
+
 
 class UserDetailsView(APIView):
 

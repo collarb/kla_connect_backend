@@ -1,8 +1,9 @@
-from rest_framework.mixins import RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, ListModelMixin
+from rest_framework.mixins import RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, ListModelMixin, CreateModelMixin
 from rest_framework.viewsets import GenericViewSet
 from kla_connect_profiles.serializers import KlaConnectUserProfileSerializer, KlaConnectUserProfile, \
     KlaConnectVerifyProfileSerializer, SimpleKlaConnectLanguage, DetailLanguageSerializer, \
         DesignationSerializer, DepartmentSerializer, Designation, Department
+from kla_connect_utils.serializers import CreateAddressSerializer, Address
 from kla_connect_profiles.models import ProfileValidation, KlaConnectLanguage
 from dry_rest_permissions.generics import DRYPermissions
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -34,6 +35,11 @@ class DepartmentViewSet(ListModelMixin, GenericViewSet):
     serializer_class = DepartmentSerializer
     queryset = Department.objects.all()
     permission_classes = (AllowAny,)
+
+class CreateAddressViewSet(CreateModelMixin, GenericViewSet):
+    serializer_class = CreateAddressSerializer
+    queryset = Address.objects.all()
+    permission_classes = (IsAuthenticated, )
 
 
 class ProfileViewSet(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericViewSet):

@@ -58,6 +58,16 @@ INCIDENT_REPORT_STATUS_CHOICES = (
     (INCIDENT_STATUS_COMPLETE, "Approved"),
 )
 
+HOME_ADDRESS = "home"
+WORK_ADDRESS = "work"
+VISTED_ADDRESS = "visited"
+
+ADDRESSES_CHOICES = (
+    (HOME_ADDRESS, "Home Address"),
+    (WORK_ADDRESS, "Work Address"),
+    (VISTED_ADDRESS,"Visited Address")
+)
+
 FEEDBACK_CHANGE_VERB = "feedbackchanged"
 REJECTED_VERB = "rejected"
 COMPLETED_VERB = "completed"

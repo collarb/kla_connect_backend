@@ -29,6 +29,20 @@ class KlaConnectLanguageWord(TimeStampModel):
     word = models.CharField(max_length=30, blank=False, null=False)
 
 
+class Address(TimeStampModel):
+    name = models.CharField(max_length=225, blank=False, null=False)
+    latitude = models.DecimalField(
+        max_digits=25, decimal_places=20, null=True, blank=True)
+    longitude = models.DecimalField(
+        max_digits=25, decimal_places=20, null=True, blank=True)
+
+
+class VistedAddress(TimeStampModel):
+    user = models.ForeignKey(
+        get_user_model(), on_delete=models.CASCADE, related_name="visted_places")
+    address = models.ForeignKey(Address, on_delete=models.CASCADE)
+
+
 class KlaConnectUserProfile(TimeStampModel):
 
     user = models.OneToOneField(
@@ -55,6 +69,10 @@ class KlaConnectUserProfile(TimeStampModel):
     id_type = models.CharField(max_length=50, blank=True, null=True)
     id_number = models.CharField(max_length=150, blank=True, null=True)
     verified = models.BooleanField(default=False)
+    home_address = models.ForeignKey(
+        Address, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="my_home_address")
+    work_address = models.ForeignKey(
+        Address, on_delete=models.DO_NOTHING, blank=True, null=True, related_query_name="my_work_address")
 
     @property
     def is_ugandan(self):
